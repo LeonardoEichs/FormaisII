@@ -178,7 +178,7 @@ public class ContextFreeGrammar {
 					cfg.vt.add(symb);
 				}
 			}
-			prodList.add(prod);
+			prodList.add(eachProd);
 			cfg.productions.put(vn, prodList);
 		}
 		return true;
