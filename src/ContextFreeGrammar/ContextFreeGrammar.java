@@ -2,6 +2,11 @@ package ContextFreeGrammar;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ContextFreeGrammar {
 
@@ -11,12 +16,18 @@ public class ContextFreeGrammar {
 	private HashMap<String, HashSet<String>> productions;
 	private String s;
 
+	/*
+	 * Default constructor
+	 */
 	public ContextFreeGrammar() {
 		vn = new HashSet<String>();
 		vt = new HashSet<String>();
 		productions = new HashMap<String, HashSet<String>>();
 	}
 	
+	/*
+	 * Constructor with input
+	 */
 	public ContextFreeGrammar(String inp) {
 		this.grammar = inp;
 		vn = new HashSet<String>();
@@ -123,6 +134,14 @@ public class ContextFreeGrammar {
 
 	private static String[] getProductions(String input) {
 		String[] prod = input.split("[\\r\\n]+");
+		return prod;
+	}
+	
+	public Set<String> getGrammarProductions(String vn) {
+		Set<String> prod = productions.get(vn);
+		if (prod == null) {
+			prod = new HashSet<String>();
+		}
 		return prod;
 	}
 
