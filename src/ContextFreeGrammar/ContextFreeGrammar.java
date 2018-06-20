@@ -1,10 +1,12 @@
 package ContextFreeGrammar;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,6 +47,56 @@ public class ContextFreeGrammar {
 			return null;
 		}
 		return cfg;
+	}
+	
+	public HashSet<String> getFirst(String a){
+		HashSet<String> ret = new HashSet<String>();
+		if(vt.contains(a)) {
+			ret.add(a);
+			return ret;
+		} else if (vn.contains(a)) {
+			HashSet<String> symbolProductions = productions.get(a);
+			for(String prod : symbolProductions) {
+				if (prod.equals("&")){
+					ret.add("&");
+					continue;
+				}
+				ArrayList<String> tokens = tokenize(prod);
+				for(int i = 0; i < tokens.size(); i++) {
+					String c = tokens.get(i);
+					if(vt.contains(c)) {
+						ret.add(new String(c));
+						break;
+					} else {
+						HashSet<String> cFirst = this.getFirst(c);
+						
+						if(cFirst.contains("&") && i != tokens.size()-1) {
+							cFirst.remove("&");
+							ret.addAll(cFirst);
+						} else if (cFirst.contains("&")) {
+							ret.addAll(cFirst);
+						} else {
+							ret.addAll(cFirst);
+							break;
+						}
+					}
+				}
+			}
+			return ret;
+		}
+		
+		return null;
+	}
+	
+	private ArrayList<String> tokenize(String prod){
+		Pattern pattern = Pattern.compile("[A-Z][0-9]*");
+		Matcher m = pattern.matcher(prod);
+		ArrayList<String> tokens = new ArrayList<String>();
+		while(m.find()){
+		    String token = m.group();   
+		    tokens.add(token);
+		}
+		return tokens;
 	}
 
 	private static ContextFreeGrammar validateProductions(String[] prods, ContextFreeGrammar cfg) {
