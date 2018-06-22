@@ -16,6 +16,7 @@ public class ContextFreeGrammar {
 	private HashSet<String> vn;
 	private HashSet<String> vt;
 	private HashMap<String, HashSet<String>> productions;
+	private HashMap<String, HashSet<String>> first;
 	private String s;
 
 	/*
@@ -25,6 +26,8 @@ public class ContextFreeGrammar {
 		vn = new HashSet<String>();
 		vt = new HashSet<String>();
 		productions = new HashMap<String, HashSet<String>>();
+		first = new HashMap<String, HashSet<String>>();
+		//calculateFirst();
 	}
 	
 	/*
@@ -35,6 +38,8 @@ public class ContextFreeGrammar {
 		vn = new HashSet<String>();
 		vt = new HashSet<String>();
 		productions = new HashMap<String, HashSet<String>>();
+		first = new HashMap<String, HashSet<String>>();
+		//calculateFirst();
 	}
 	
 	public static ContextFreeGrammar isValidCFG(String input) {
@@ -49,47 +54,72 @@ public class ContextFreeGrammar {
 		return cfg;
 	}
 	
-	public HashSet<String> getFirst(String a){
-		HashSet<String> ret = new HashSet<String>();
-		if(vt.contains(a)) {
-			ret.add(a);
-			return ret;
-		} else if (vn.contains(a)) {
-			HashSet<String> symbolProductions = productions.get(a);
-			for(String prod : symbolProductions) {
-				if (prod.equals("&")){
-					ret.add("&");
-					continue;
-				}
-				ArrayList<String> tokens = tokenize(prod);
-				for(int i = 0; i < tokens.size(); i++) {
-					String c = tokens.get(i);
-					if(vt.contains(c)) {
-						ret.add(new String(c));
-						break;
-					} else {
-						HashSet<String> cFirst = this.getFirst(c);
-						
-						if(cFirst.contains("&") && i != tokens.size()-1) {
-							cFirst.remove("&");
-							ret.addAll(cFirst);
-						} else if (cFirst.contains("&")) {
-							ret.addAll(cFirst);
-						} else {
-							ret.addAll(cFirst);
+	public void calculateFirst(){
+		for (String s : vt) {
+			s = s.replaceAll("\\s","");
+			HashSet<String> hs = new HashSet<String>();
+			hs.add(s);
+			first.put(s, hs);
+		}
+		for (String a : vn) {
+			first.put(a, new HashSet<String>());
+		}
+		boolean changed = true;
+		while(changed) {
+			changed = false;
+			for (String a : vn) {
+				HashSet<String> symbolProductions = productions.get(a);
+				for(String prod : symbolProductions) {
+					prod = prod.replaceAll("\\s","");
+					if (prod.compareTo("&") == 0){
+						HashSet<String> aux = first.get(a);
+						aux.add(prod);
+						first.put(a, aux);
+						continue;
+					}
+					ArrayList<String> tokens = tokenize(prod);
+					for(int i = 0; i < tokens.size(); i++) {
+						String c = tokens.get(i);
+						if(vt.contains(c)) {
+							HashSet<String> aux = first.get(a);
+							aux.add(c);
+							first.put(a, aux);
 							break;
+						} else {
+							HashSet<String> cFirst = new HashSet<String>(); 
+							cFirst.addAll(first.get(c));
+							HashSet<String> aux = first.get(a);
+							if(cFirst.contains("&") && i != tokens.size()-1) {
+								cFirst.remove("&");
+								if(aux.addAll(cFirst)) {
+									changed = true;
+								}
+								first.put(a, aux);
+							} else if (cFirst.contains("&")) {
+								if(aux.addAll(cFirst)) {
+									changed = true;
+								}
+								first.put(a, aux);;
+							} else {
+								if(aux.addAll(cFirst)) {
+									changed = true;
+								}
+								first.put(a, aux);
+								break;
+							}
 						}
 					}
 				}
 			}
-			return ret;
 		}
-		
-		return null;
+	}
+	
+	public HashSet<String> getFirst(String a){
+		return first.get(a);
 	}
 	
 	private ArrayList<String> tokenize(String prod){
-		Pattern pattern = Pattern.compile("[A-Z][0-9]*");
+		Pattern pattern = Pattern.compile("[A-Za-z][0-9]*");
 		Matcher m = pattern.matcher(prod);
 		ArrayList<String> tokens = new ArrayList<String>();
 		while(m.find()){
