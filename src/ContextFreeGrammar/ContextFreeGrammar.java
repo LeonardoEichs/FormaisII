@@ -17,7 +17,9 @@ public class ContextFreeGrammar {
 	private HashSet<String> vt;
 	private HashMap<String, HashSet<String>> productions;
 	private HashMap<String, HashSet<String>> first;
+	private HashMap<String, HashSet<String>> follow;
 	private String s;
+	
 
 	/*
 	 * Default constructor
@@ -28,6 +30,7 @@ public class ContextFreeGrammar {
 		productions = new HashMap<String, HashSet<String>>();
 		first = new HashMap<String, HashSet<String>>();
 		//calculateFirst();
+		follow = new HashMap<String, HashSet<String>>();
 	}
 	
 	/*
@@ -40,6 +43,7 @@ public class ContextFreeGrammar {
 		productions = new HashMap<String, HashSet<String>>();
 		first = new HashMap<String, HashSet<String>>();
 		//calculateFirst();
+		follow = new HashMap<String, HashSet<String>>();
 	}
 	
 	public static ContextFreeGrammar isValidCFG(String input) {
@@ -114,8 +118,66 @@ public class ContextFreeGrammar {
 		}
 	}
 	
+	public void calculateFollow(){
+		if(first.size() == 0) {
+			calculateFirst();
+		}
+		for (String a : vn) {
+			follow.put(a, new HashSet<String>());
+		}
+		follow.get(s).add("$");
+		for (String a : vn) {
+			HashSet<String> symbolProductions = productions.get(a);
+			for(String prod : symbolProductions) {
+				prod = prod.replaceAll("\\s","");
+				ArrayList<String> tokens = tokenize(prod);
+				for(int i = 1; i < tokens.size()-1; i++) {
+					String c = tokens.get(i);
+					String c2 = tokens.get(i-1);
+					follow.get(c2).addAll(first.get(c));
+					follow.get(c2).remove("&");
+				}
+			}
+		}
+		boolean changed = true;
+		while(changed){
+			changed = false;
+			for (String a : vn) {
+				HashSet<String> symbolProductions = productions.get(a);
+				for(String prod : symbolProductions) {
+					prod = prod.replaceAll("\\s","");
+					if(prod.compareTo("&") == 0) {
+						continue;
+					}
+					ArrayList<String> tokens = tokenize(prod);
+					for(int i = 0; i < tokens.size()-1; i++) {
+						String c = tokens.get(i);
+						if(first.get(c).contains("&")){
+							HashSet<String> aux = follow.get(c);
+							if(aux.addAll(follow.get(a))){
+								changed = true;
+							}
+							
+						}
+					}
+					String x = tokens.get(tokens.size()-1);
+					HashSet<String> aux;
+					if(vn.contains(x)) {
+						aux = follow.get(tokens.get(tokens.size()-1));
+						if(aux.addAll(follow.get(a))){
+							changed = true;
+						}
+					}
+				}
+			}
+		}
+	}
+	
 	public HashSet<String> getFirst(String a){
 		return first.get(a);
+	}
+	public HashSet<String> getFollow(String a){
+		return follow.get(a);
 	}
 	
 	private ArrayList<String> tokenize(String prod){
