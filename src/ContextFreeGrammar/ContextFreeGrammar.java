@@ -273,6 +273,13 @@ public class ContextFreeGrammar {
 				return null;
 			}
 		}
+		for(String c : cfg.vn) { // Vn com produções vazias
+			if(cfg.getGrammarProductions(c).isEmpty()) {
+				cfg.vn.clear();
+				return null;
+			}
+		}
+
 		return cfg;
 	}
 

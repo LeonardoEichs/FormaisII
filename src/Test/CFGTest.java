@@ -9,8 +9,8 @@ import org.junit.Test;
 import ContextFreeGrammar.ContextFreeGrammar;
 
 public class CFGTest {
-	private static int lengthValid = 13;
-	private static int lengthInvalid = 3;
+	private static int lengthValid = 11;
+	private static int lengthInvalid = 5;
 
 	private static String[] grammarInvalid;
 	private static String[] grammar;
@@ -51,28 +51,15 @@ public class CFGTest {
 					"T -> F T1\n" + 
 					"T1 -> * F T1 | &\n" + 
 					"F -> id | ( E )";
-		grammar[8] = "A -> B C | a b | H\n" + 
-					"B -> D | &\n" + 
-					"C -> f | G a | H E\n" + 
-					"E -> e | J\n" + 
-					"H -> K | & | a M\n" + 
-					"M -> Z";
-		grammar[9] = "A -> B C | a b | H\n" + 
-					"B -> D | &\n" + 
-					"C -> f | G a | H E\n" + 
-					"E -> e | J\n" + 
-					"H -> K | a M\n" + 
-					"M -> Z";
-		
-		grammar[10] = "X -> Y Z\n" + 
+		grammar[8] = "X -> Y Z\n" + 
 					"Y -> m | n | &\n" + 
 					"Z -> m";
-		grammar[11] = "S -> A B | C D\n" + 
+		grammar[9] = "S -> A B | C D\n" + 
 					"A -> &\n" + 
 					"B -> &\n" + 
 					"C -> &\n" + 
 					"D -> a | &";
-		grammar[12] = "S -> A B | C D\n" +
+		grammar[10] = "S -> A B | C D\n" +
 					"A -> & | c\n" +
 					"B -> d\n" +
 					"C -> & | b\n" +
@@ -103,6 +90,18 @@ public class CFGTest {
 		grammarInvalid[2] = "S -> a B c\n" + 
 						"aB -> c A\n" + 
 						"Ac -> d";
+		grammarInvalid[3] = "A -> B C | a b | H\n" + 
+						"B -> D | &\n" + 
+						"C -> f | G a | H E\n" + 
+						"E -> e | J\n" + 
+						"H -> K | & | a M\n" + 
+						"M -> Z";
+		grammarInvalid[4] = "A -> B C | a b | H\n" + 
+						"B -> D | &\n" + 
+						"C -> f | G a | H E\n" + 
+						"E -> e | J\n" + 
+						"H -> K | a M\n" + 
+						"M -> Z";
 	}
 
 	
@@ -111,6 +110,7 @@ public class CFGTest {
 		ContextFreeGrammar cfg[] = new ContextFreeGrammar[lengthValid];
 		int i = 0;
 		for (String grammar: grammar) {
+			System.out.println(i);
 			cfg[i++] = ContextFreeGrammar.isValidCFG(grammar);
 		}
 		for (ContextFreeGrammar l : cfg) {

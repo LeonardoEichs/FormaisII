@@ -47,22 +47,10 @@ public class FirstTest {
 					"T -> F T1\n" + 
 					"T1 -> * F T1 | &\n" + 
 					"F -> id | ( E )";
-		grammar[8] = "A -> B C | a b | H\n" + 
-					"B -> D | &\n" + 
-					"C -> f | G a | H E\n" + 
-					"E -> e | J\n" + 
-					"H -> K | & | a M\n" + 
-					"M -> Z";
-		grammar[9] = "A -> B C | a b | H\n" + 
-					"B -> D | &\n" + 
-					"C -> f | G a | H E\n" + 
-					"E -> e | J\n" + 
-					"H -> K | a M\n" + 
-					"M -> Z";
-		grammar[10] = "X -> Y Z\n" + 
+		grammar[8] = "X -> Y Z\n" + 
 					"Y -> m | n | &\n" + 
 					"Z -> m";
-		grammar[11] = "S -> A B | C D\n" + 
+		grammar[9] = "S -> A B | C D\n" + 
 					"A -> &\n" + 
 					"B -> &\n" + 
 					"C -> &\n" + 
@@ -311,90 +299,6 @@ public class FirstTest {
 	@Test
 	public void testFirstSetG8() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[8]);
-		Set<String> firstA = op.getFirst("A");
-		Set<String> firstB = op.getFirst("B");
-		Set<String> firstC = op.getFirst("C");
-		Set<String> firstE = op.getFirst("E");
-		Set<String> firstH = op.getFirst("H");
-		Set<String> firstM = op.getFirst("M");
-		Set<String> expectedFirst = new HashSet<String>();
-
-		expectedFirst.add("a");
-		expectedFirst.add("&");
-		expectedFirst.add("f");
-		expectedFirst.add("e");
-		assertTrue(firstA.equals(expectedFirst));
-		expectedFirst.clear();
-
-		expectedFirst.add("&");
-		assertTrue(firstB.equals(expectedFirst));
-		expectedFirst.clear();
-		
-		expectedFirst.add("f");
-		expectedFirst.add("a");
-		expectedFirst.add("e");
-		assertTrue(firstC.equals(expectedFirst));
-		expectedFirst.clear();
-
-		expectedFirst.add("e");
-		assertTrue(firstE.equals(expectedFirst));
-		expectedFirst.clear();
-		
-		expectedFirst.add("a");
-		expectedFirst.add("&");
-		assertTrue(firstH.equals(expectedFirst));
-		expectedFirst.clear();
-		
-		assertTrue(firstM.equals(expectedFirst));
-		expectedFirst.clear();
-	}
-	
-	/**
-	 * Test first set for G9
-	 */
-	@Test
-	public void testFirstSetG9() {
-		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[9]);
-		Set<String> firstA = op.getFirst("A");
-		Set<String> firstB = op.getFirst("B");
-		Set<String> firstC = op.getFirst("C");
-		Set<String> firstE = op.getFirst("E");
-		Set<String> firstH = op.getFirst("H");
-		Set<String> firstM = op.getFirst("M");
-		Set<String> expectedFirst = new HashSet<String>();
-
-		expectedFirst.add("a");
-		expectedFirst.add("f");
-		assertTrue(firstA.equals(expectedFirst));
-		expectedFirst.clear();
-
-		expectedFirst.add("&");
-		assertTrue(firstB.equals(expectedFirst));
-		expectedFirst.clear();
-		
-		expectedFirst.add("f");
-		expectedFirst.add("a");
-		assertTrue(firstC.equals(expectedFirst));
-		expectedFirst.clear();
-
-		expectedFirst.add("e");
-		assertTrue(firstE.equals(expectedFirst));
-		expectedFirst.clear();
-		
-		expectedFirst.add("a");
-		assertTrue(firstH.equals(expectedFirst));
-		expectedFirst.clear();
-		
-		assertTrue(firstM.equals(expectedFirst));
-		expectedFirst.clear();
-	}
-	
-	/**
-	 * Test first set for G10
-	 */
-	@Test
-	public void testFirstSetG10() {
-		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[10]);
 		Set<String> firstX = op.getFirst("X");
 		Set<String> firstY = op.getFirst("Y");
 		Set<String> firstZ = op.getFirst("Z");
@@ -417,11 +321,11 @@ public class FirstTest {
 	}	
 	
 	/**
-	 * Test first set for G11
+	 * Test first set for G9
 	 */
 	@Test
-	public void testFirstSetG11() {
-		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[11]);
+	public void testFirstSetG9() {
+		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[9]);
 		Set<String> firstS = op.getFirst("S");
 		Set<String> firstA = op.getFirst("A");
 		Set<String> firstB = op.getFirst("B");
