@@ -95,30 +95,31 @@ public class ContextFreeGrammar {
 		for (String a : vn) {
 			first.put(a, new HashSet<String>());
 		}
-		System.out.println(first);
 		boolean changed = true;
 		while(changed) {
 			changed = false;
 			for (String a : vn) {
-				System.out.println(a);
 				HashSet<String> symbolProductions = productions.get(a);
 				for(String prod : symbolProductions) {
 					String prod2 = prod.replaceAll("\\s","");
 					if (prod2.compareTo("&") == 0){
 						HashSet<String> aux = first.get(a);
-						aux.add(prod2);
-						System.out.println("  :" + aux);
+						if(aux.add(prod2)) {
+							changed = true;
+						}
 						first.put(a, aux);
 						continue;
 					}
 					ArrayList<String> tokens = tokenize(prod);
-					System.out.println("t: " + tokens);
 					for(int i = 0; i < tokens.size(); i++) {
 						String c = tokens.get(i);
 						if(vt.contains(c)) {
 							HashSet<String> aux = first.get(a);
-							aux.add(c);
+							if(aux.add(c)){
+								changed = true;
+							};
 							first.put(a, aux);
+							
 							break;
 						} else {
 							HashSet<String> cFirst = new HashSet<String>();
@@ -146,7 +147,6 @@ public class ContextFreeGrammar {
 					}
 				}
 			}
-			System.out.println(changed);
 		}
 	}
 	
