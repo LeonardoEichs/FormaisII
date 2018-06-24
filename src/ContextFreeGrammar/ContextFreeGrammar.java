@@ -46,6 +46,32 @@ public class ContextFreeGrammar {
 		follow = new HashMap<String, HashSet<String>>();
 	}
 	
+	public String getDefinition() {
+		String grammar = "";
+		String aux = "";
+		HashSet<String> prodList;
+		
+		for (String vN : this.productions.keySet()) {
+			prodList = this.productions.get(vN);
+			
+			for (String prod : prodList) {
+				aux += prod + " | ";
+			}
+			if (aux.length() > 0) { 
+				aux = aux.substring(0, aux.length()-2);
+			}
+			aux = aux.trim().replaceAll(" +", " ");
+			if (vN.equals(this.s)) {
+				grammar = vN + " -> " + aux + "\n" + grammar;
+			} else {
+				grammar += vN + " -> " + aux + "\n";
+			}
+			aux = "";
+		}
+		this.grammar = grammar;
+		return grammar;
+}
+	
 	public static ContextFreeGrammar isValidCFG(String input) {
 		ContextFreeGrammar cfg = new ContextFreeGrammar(input);
 		
@@ -55,6 +81,7 @@ public class ContextFreeGrammar {
 		if(cfg.vn.isEmpty()) {
 			return null;
 		}
+		cfg.calculateFirst();
 		return cfg;
 	}
 	
@@ -68,20 +95,24 @@ public class ContextFreeGrammar {
 		for (String a : vn) {
 			first.put(a, new HashSet<String>());
 		}
+		System.out.println(first);
 		boolean changed = true;
 		while(changed) {
 			changed = false;
 			for (String a : vn) {
+				System.out.println(a);
 				HashSet<String> symbolProductions = productions.get(a);
 				for(String prod : symbolProductions) {
-					prod = prod.replaceAll("\\s","");
-					if (prod.compareTo("&") == 0){
+					String prod2 = prod.replaceAll("\\s","");
+					if (prod2.compareTo("&") == 0){
 						HashSet<String> aux = first.get(a);
-						aux.add(prod);
+						aux.add(prod2);
+						System.out.println("  :" + aux);
 						first.put(a, aux);
 						continue;
 					}
 					ArrayList<String> tokens = tokenize(prod);
+					System.out.println("t: " + tokens);
 					for(int i = 0; i < tokens.size(); i++) {
 						String c = tokens.get(i);
 						if(vt.contains(c)) {
@@ -90,7 +121,7 @@ public class ContextFreeGrammar {
 							first.put(a, aux);
 							break;
 						} else {
-							HashSet<String> cFirst = new HashSet<String>(); 
+							HashSet<String> cFirst = new HashSet<String>();
 							cFirst.addAll(first.get(c));
 							HashSet<String> aux = first.get(a);
 							if(cFirst.contains("&") && i != tokens.size()-1) {
@@ -115,6 +146,7 @@ public class ContextFreeGrammar {
 					}
 				}
 			}
+			System.out.println(changed);
 		}
 	}
 	
@@ -181,7 +213,8 @@ public class ContextFreeGrammar {
 	}
 	
 	private ArrayList<String> tokenize(String prod){
-		Pattern pattern = Pattern.compile("[A-Za-z][0-9]*");
+		/*
+		Pattern pattern = Pattern.compile("([A-Z][0-9]*)|([a-z]+)|(\\+)|(\\()|(\\))");
 		Matcher m = pattern.matcher(prod);
 		ArrayList<String> tokens = new ArrayList<String>();
 		while(m.find()){
@@ -189,6 +222,15 @@ public class ContextFreeGrammar {
 		    tokens.add(token);
 		}
 		return tokens;
+		*/
+		String[] br = prod.split(" ");
+		ArrayList<String> list = new ArrayList<String>();
+		for (String str : br) {
+			if (!str.isEmpty()) {
+				list.add(str);
+			}
+		}
+		return list;
 	}
 
 	private static ContextFreeGrammar validateProductions(String[] prods, ContextFreeGrammar cfg) {
@@ -243,11 +285,11 @@ public class ContextFreeGrammar {
 		}
 		String[] prods = prod.split("\\|");
 		for(String eachProd : prods) {
-			if (prod.replaceAll("\\s+", "").length() < 1) { // |prod| = 0
+			if (eachProd.replaceAll("\\s+", "").length() < 1) { // |prod| = 0
 				cfg.vn.clear();
 				return false;
 			}
-			String[] symbols = prod.split("[\\s\\r]+"); // + E T
+			String[] symbols = eachProd.split("[\\s\\r]+"); // + E T
 			for (String symb : symbols) {
 				if(symb.isEmpty()) {
 					continue;
@@ -287,6 +329,29 @@ public class ContextFreeGrammar {
 			prod = new HashSet<String>();
 		}
 		return prod;
+	}
+	/*
+	public boolean isFactored() {
+		Set<String> aux, firstSet, productions;
+		for (String nt : this.vn) {
+			firstSet = new HashSet<String>();
+			productions = this.getGrammarProductions(nt);
+			for (String prod: productions) {
+				aux = getProductionFirstSet(tokenize(prod));
+				for (String prodSymbol : aux) {
+					if (firstSet.contains(prodSymbol)) {
+							return false;
+					}
+				}
+				firstSet.addAll(aux);
+			}
+		}
+		return true;
+	}
+	*/
+
+	public HashSet<String> getVt() {
+		return this.vt;
 	}
 
 }
