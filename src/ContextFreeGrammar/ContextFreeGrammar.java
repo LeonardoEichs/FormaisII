@@ -161,17 +161,14 @@ public class ContextFreeGrammar {
 		for (String a : vn) {
 			HashSet<String> symbolProductions = productions.get(a);
 			for(String prod : symbolProductions) {
-				prod = prod.replaceAll("\\s","");
+				//prod = prod.replaceAll("\\s","");
 				ArrayList<String> tokens = tokenize(prod);
-				for(int i = 0; i < tokens.size(); i++) {
-					String b = tokens.get(i);
-					for(int j = 0; j < b.length()-1; j++) {
-						String c = b.substring(j, j+1);
-						if(vn.contains(c)) {
-							String c2 = b.substring(j+1, j+2);
-							follow.get(c).addAll(first.get(c2));
-							follow.get(c).remove("&");
-						}
+				for(int i = 0; i < tokens.size()-1; i++) {
+					String c = tokens.get(i);
+					if(vn.contains(c)) {
+						String c2 = tokens.get(i+1);
+						follow.get(c).addAll(first.get(c2));
+						follow.get(c).remove("&");
 					}
 				}
 			}
@@ -182,20 +179,21 @@ public class ContextFreeGrammar {
 			for (String a : vn) {
 				HashSet<String> symbolProductions = productions.get(a);
 				for(String prod : symbolProductions) {
-					prod = prod.replaceAll("\\s","");
-					if(prod.compareTo("&") == 0) {
+					//prod = prod.replaceAll("\\s","");
+					ArrayList<String> tokens = tokenize(prod);
+					if(tokens.get(0).compareTo("&") == 0) {
 						continue;
 					}
-					ArrayList<String> tokens = tokenize(prod);
-					for(int i = 0; i < tokens.size(); i++) {
+					for(int i = 0; i < tokens.size()-1; i++) {
 						String b = tokens.get(i);
-						for(int j = 0; j < b.length()-1; j++) {
-							String c = b.substring(j, j+1);
-							if(first.get(c).contains("&")){
-								HashSet<String> aux = follow.get(c);
-								if(aux.addAll(follow.get(a))){
-									changed = true;
-								}	
+						String c = tokens.get(i+1);
+						if (a.compareTo(b) == 0) {
+							continue;
+						}
+						if(first.get(c).contains("&")){
+							HashSet<String> aux = follow.get(b);
+							if(aux.addAll(follow.get(a))){
+								changed = true;
 							}	
 						}
 					}
