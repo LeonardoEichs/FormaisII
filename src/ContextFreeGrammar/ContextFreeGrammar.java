@@ -3,12 +3,7 @@ package ContextFreeGrammar;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Set;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ContextFreeGrammar {
 
@@ -31,6 +26,17 @@ public class ContextFreeGrammar {
 		first = new HashMap<String, HashSet<String>>();
 		//calculateFirst();
 		follow = new HashMap<String, HashSet<String>>();
+	}
+	
+	public ContextFreeGrammar(HashSet<String> _vn, HashSet<String> _vt, HashMap<String, HashSet<String>> _productions, String _s) {
+		this.vn = _vn;
+		s = _s;
+		this.vt = _vt;
+		productions = _productions;
+		first = new HashMap<String, HashSet<String>>();
+		calculateFirst();
+		follow = new HashMap<String, HashSet<String>>();
+		calculateFollow();
 	}
 	
 	/*
@@ -186,15 +192,17 @@ public class ContextFreeGrammar {
 					}
 					for(int i = 0; i < tokens.size()-1; i++) {
 						String b = tokens.get(i);
-						String c = tokens.get(i+1);
-						if (a.compareTo(b) == 0) {
-							continue;
-						}
-						if(first.get(c).contains("&")){
-							HashSet<String> aux = follow.get(b);
-							if(aux.addAll(follow.get(a))){
-								changed = true;
-							}	
+						if(vn.contains(b)) {
+							String c = tokens.get(i+1);
+							if (a.compareTo(b) == 0) {
+								continue;
+							}
+							if(first.get(c).contains("&")){
+								HashSet<String> aux = follow.get(b);
+								if(aux.addAll(follow.get(a))){
+									changed = true;
+								}	
+							}
 						}
 					}
 					String x = tokens.get(tokens.size()-1);
@@ -217,6 +225,70 @@ public class ContextFreeGrammar {
 		return follow.get(a);
 	}
 	
+	public ContextFreeGrammar removeEpsilon() {
+		boolean changed = true;
+		HashSet<String> ne = new HashSet<String>();
+		//HashSet<String> unchecked = vn;
+		while(changed) {
+			changed = false;
+			for (String symbol : vn) {
+				HashSet<String> symbolProductions = productions.get(symbol);
+				searchProds: {
+					for(String prod : symbolProductions) {
+						ArrayList<String> tokens = tokenize(prod);
+						if(tokens.get(0).compareTo("&") == 0) {
+							if(ne.add(symbol)) {
+								changed = true;
+							}
+							break;
+						}
+						for(int i = 0; i < tokens.size(); i++) {
+							String c = tokens.get(i);
+							if(!ne.contains(c)) {
+								break;
+							}
+							if(i == tokens.size()-1) {
+								if(ne.add(symbol)) {
+									changed = true;
+								}
+								break searchProds;
+							}
+						}
+						
+					}
+				}
+			}
+		}
+		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
+		for (String symbol : vn) {
+			HashSet<String> newSymbolProductions = new HashSet<String>();
+			HashSet<String> symbolProductions = productions.get(symbol);
+			for(String prod : symbolProductions) {
+				ArrayList<String> tokens = tokenize(prod);
+				if(tokens.get(0).compareTo("&") != 0) {
+					for(int i = 0; i < tokens.size(); i++) {
+						String c = tokens.get(i);
+						if(ne.contains(c)) {
+							ArrayList<String> aux = new ArrayList<String>();
+							aux.addAll(tokens);
+							aux.remove(i);
+							String auxString = aux.toString();
+							auxString = auxString.replace("[", " ").replace("]", " ").replace(",", "");
+							newSymbolProductions.add(auxString);
+						}
+						
+					}
+					String auxString = tokens.toString();
+					auxString = auxString.replace("[", " ").replace("]", " ").replace(",", "");
+					newSymbolProductions.add(auxString);
+				}
+			}
+			newProductions.put(symbol, newSymbolProductions);
+		}
+		ContextFreeGrammar eFree = new ContextFreeGrammar(vn, vt, newProductions, s);
+		return eFree;
+	}
+	
 	private ArrayList<String> tokenize(String prod){
 		/*
 		Pattern pattern = Pattern.compile("([A-Z][0-9]*)|([a-z]+)|(\\+)|(\\()|(\\))");
@@ -237,6 +309,7 @@ public class ContextFreeGrammar {
 		}
 		return list;
 	}
+	
 
 	private static ContextFreeGrammar validateProductions(String[] prods, ContextFreeGrammar cfg) {
 		String[] prodSplit;
