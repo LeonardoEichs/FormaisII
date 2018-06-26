@@ -415,28 +415,14 @@ public class ContextFreeGrammar {
 		}
 		return prod;
 	}
-	/*
-	public boolean isFactored() {
-		Set<String> aux, firstSet, productions;
-		for (String nt : this.vn) {
-			firstSet = new HashSet<String>();
-			productions = this.getGrammarProductions(nt);
-			for (String prod: productions) {
-				aux = getProductionFirstSet(tokenize(prod));
-				for (String prodSymbol : aux) {
-					if (firstSet.contains(prodSymbol)) {
-							return false;
-					}
-				}
-				firstSet.addAll(aux);
-			}
-		}
-		return true;
-	}
-	*/
+
 
 	public HashSet<String> getVt() {
 		return this.vt;
+	}
+	
+	public HashSet<String> getVn() {
+		return this.vn;
 	}
 
 }
