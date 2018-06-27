@@ -1,6 +1,7 @@
 package ContextFreeGrammar;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,6 +14,7 @@ public class ContextFreeGrammar {
 	private HashSet<String> vt;
 	private HashMap<String, HashSet<String>> productions;
 	private HashMap<String, HashSet<String>> first;
+	private HashMap<String, HashSet<String>> firstNT;
 	private HashMap<String, HashSet<String>> follow;
 	private String s;
 	private String id;
@@ -37,6 +39,7 @@ public class ContextFreeGrammar {
 		productions = _productions;
 		first = new HashMap<String, HashSet<String>>();
 		calculateFirst();
+		calculateFirstNT();
 		follow = new HashMap<String, HashSet<String>>();
 		calculateFollow();
 	}
@@ -81,6 +84,10 @@ public class ContextFreeGrammar {
 		}
 	}
 	
+	public Boolean isEmptyGrammar() {
+		return removeInfertile().getVn().contains(this.getInitialSymbol());
+	}
+	
 	public String getDefinition() {
 		String grammar = "";
 		String aux = "";
@@ -117,9 +124,101 @@ public class ContextFreeGrammar {
 			return null;
 		}
 		cfg.calculateFirst();
+		cfg.calculateFirstNT();
 		return cfg;
 	}
 	
+	public HashMap<String, HashSet<String>> getFirstNT() {
+		return firstNT;
+	}
+	
+	public Set<String> getFirstNT(String nt) {
+		if (!isVnVt(nt)) { // if a symbol does not belong to vn vt
+			return null;
+		}
+		return getFirstNT().get(nt);
+	}
+	
+	private boolean isVnVt(String str) {
+		boolean onlySpaces = true;
+		for (String s : tokenize(str)) {
+			if (s.matches("[\\s]+")) {
+				continue;
+			} else {
+				onlySpaces = false;
+				if (!vn.contains(s) && !vt.contains(s)) {
+					return false;
+				}
+			}
+		}
+		if (onlySpaces) {
+			return false;
+		}
+		return true;
+	}
+	
+	public void calculateFirstNT(){
+		firstNT = new HashMap<>();
+		Set<String> set;
+		boolean wasChanged = true; // avoid infinite loop from recursion
+		
+		// Initializes firstNT set for every vn from the grammar
+		for(String nt : vn) {
+			firstNT.put(nt, new HashSet<>());			
+		}
+		
+		// Do it only while the set was changed
+		while(wasChanged){
+			wasChanged = false;
+			// for every vn from the grammar
+			for(String nt : vn) {
+				set = new HashSet<>();
+				// for every prod from the vn
+				for(String prod : getGrammarProductions(nt)) {
+					set.addAll(getProductionFirstNT(nt, tokenize(prod)));
+				}
+				// if the set was changed
+				if (firstNT.get(nt).addAll(set)) {
+					wasChanged = true;
+				}
+			}
+		}
+	}
+
+	
+	private Set<String> getProductionFirstNT(String vn, ArrayList<String> production){
+		Set<String> firstNTSet = new HashSet<>();
+		Set<String> nextFirstNT = null;
+		String prodSymbol;
+		boolean goToTheNext;
+		int symbolCount = 0;
+		
+		prodSymbol = production.get(symbolCount);
+		goToTheNext = true;
+				
+		while(goToTheNext) {
+			goToTheNext = false;
+			if(!vt.contains(prodSymbol)) { // symbol is not a terminal
+				firstNTSet.add(prodSymbol);
+				nextFirstNT = getFirstNT().get(prodSymbol); // get the firstNT set for the symbol
+				firstNTSet.addAll(nextFirstNT); // add the set to the firstNTSet
+				// for every production of the symbol
+				for(String prod : getGrammarProductions(prodSymbol)){
+					if(tokenize(prod).contains("&")) { // if it contains epsilon
+						goToTheNext = true; // go to the next symbol to get the firstNT
+						if(++symbolCount >= production.size()) { // verify the size of the production
+							goToTheNext = false; // if it is the last vn from the production, return
+						}
+						else {
+							prodSymbol = production.get(symbolCount); // get the next symbol
+						}
+					}
+				}
+				
+			}
+		}
+		return firstNTSet;
+}
 	public void calculateFirst(){
 		for (String a : vt) {
 			a = a.replaceAll("\\s","");

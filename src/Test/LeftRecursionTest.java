@@ -1,5 +1,6 @@
 package Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -95,6 +96,25 @@ public class LeftRecursionTest {
 		
 		op = new Operator(cfg[9]);
 		assertFalse(op.hasLeftRecursion());
+	}
+	
+	@Test
+	void eliminateRecursionTest() {
+		ContextFreeGrammar g = ContextFreeGrammar.isValidCFG(
+				"S -> B b | C d\n" + 
+				"B -> C a B | &\n" + 
+				"C -> c C | & | B\n");
+		Operator op = new Operator(g);
+		assertTrue(op.hasLeftRecursion());
+		String def = g.getDefinition();
+		
+		assertEquals("S -> C a B b | C d | b\n" + 
+				"B -> C a B | &\n" + 
+				"C -> c C C1 | C1\n" + 
+				"C1 -> & | a B C1\n" + 
+				"", op.eliminateLeftRecursion().getDefinition());
+		
+		assertEquals(def, g.getDefinition());
 	}
 
 }

@@ -21,7 +21,7 @@ public class Operator {
 			// If the firstNT set from the current non terminal contains itself
 			System.out.println(nt);
 			System.out.println(cfg.getFirst(nt));
-			if (cfg.getFirst(nt).contains(nt)) {
+			if (cfg.getFirstNT(nt).contains(nt)) {
 				return true;
 			}
 		}
@@ -315,6 +315,8 @@ public class Operator {
 			}
 		}
 		aux = aux + " \n";
+		
+		new_prod.remove(string);
 
 		for (Map.Entry<String, HashSet<String>> entry : new_prod.entrySet()) {
 			String key = entry.getKey();
@@ -373,6 +375,87 @@ public class Operator {
 			}
 		}
 		return list;
+	}
+
+	public ContextFreeGrammar eliminateLeftRecursion() {
+		ArrayList<ContextFreeGrammar> results = new ArrayList<>();
+		ContextFreeGrammar newG = this.cfg;
+		HashMap<String, HashSet<String>> newProd = new HashMap<String, HashSet<String>>();
+		HashSet<String> productionSet = new HashSet<String>();
+		ArrayList<String> numberedVn = new ArrayList<>();
+		for (String nt : this.cfg.getVn()) { // ordered vn
+			numberedVn.add(nt);
+		}
+		
+		if (!hasLeftRecursion()) {
+			return this.cfg;
+		}
+		
+		for (int i = 0; i < numberedVn.size(); i++) { // Ai
+			newG = ContextFreeGrammar.isValidCFG(newG.getDefinition()); // new grammar
+			Operator newOp = new Operator(newG);
+			// Indirect Left Recursion
+			for (int j = 0; j <= i-1; j++) { // For every Aj
+				ArrayList<String> productions = newOp.getProdList(newG.getGrammarProductions(numberedVn.get(i)));
+				for (String aiProd : productions) { // Ai -> ...
+					String firstSymbolAi = newOp.tokenize(aiProd).get(0);
+					if(newOp.cfg.getVt().contains(firstSymbolAi)) { // terminal skip
+						continue;
+					}
+					if (firstSymbolAi.equals(numberedVn.get(j))) {
+						for(String prodJ : newG.getGrammarProductions(numberedVn.get(j))) {
+							if(!prodJ.equals("&"))
+								productionSet.add(prodJ + aiProd.substring(numberedVn.get(j).length()));
+							else
+								productionSet.add(aiProd.substring(numberedVn.get(j).length()));
+						}
+						newProd.put(numberedVn.get(i), productionSet);
+					}
+				}
+			}
+		}
+		for(String nt : newG.getVn()) {
+			if(!newProd.containsKey(nt))
+				newProd.put(nt, (HashSet<String>) newG.getGrammarProductions(nt));
+		}
+
+		System.out.println("------------------------------");
+		System.out.println(newProd);
+		System.out.println(mapToInput(newProd, newG.getInitialSymbol()));
+		System.out.println("------------------------------");
+
+		
+		ContextFreeGrammar cfgIR = ContextFreeGrammar.isValidCFG(mapToInput(newProd, newG.getInitialSymbol()));
+		
+		// Direct Recursion
+		newProd = new HashMap<String, HashSet<String>>();
+		for(String nonterminal : cfgIR.getVn()) {
+			String newNT = createNewVN(nonterminal);
+			Set<String> prod = cfgIR.getGrammarProductions(nonterminal);
+			ArrayList<String> prods = getProdList(prod);
+			for(int i = 0; i < prods.size(); i++) {
+				ArrayList<String> nProd1 = tokenize(prods.get(i));
+				if(nProd1.get(0).equals(nonterminal)){
+					productionSet = new HashSet<String>();
+					for(String p : prods) {
+						if(tokenize(p).get(0) != nonterminal) {
+							productionSet.add(p.replaceAll("\\s*$", "") + " " + newNT);
+						}
+						newProd.put(nonterminal, productionSet);
+					}
+					productionSet = new HashSet<String>();
+					for(String p : prods) {
+						if(tokenize(p).get(0) == nonterminal) {
+							productionSet.add(p.substring(tokenize(p).get(0).length()+1) + " " + newNT);
+						}
+						newProd.put(newNT, productionSet);
+					}
+				}
+			}
+		}
+		ContextFreeGrammar cfgDR = ContextFreeGrammar.isValidCFG(mapToInput(newProd, cfgIR.getInitialSymbol()));
+		
+		return cfgDR;
 	}
 
 }
