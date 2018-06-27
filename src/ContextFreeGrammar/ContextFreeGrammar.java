@@ -427,8 +427,8 @@ public class ContextFreeGrammar {
 			nt.put(a, temp);
 			
 			HashSet<String> newSymbolProductions = new HashSet<String>();
-			newSymbolProductions.addAll(productions.get(s));
-			newProductions.put(s, newSymbolProductions);
+			newSymbolProductions.addAll(productions.get(a));
+			newProductions.put(a, newSymbolProductions);
 		}
 		
 		while(changed) {
@@ -440,8 +440,8 @@ public class ContextFreeGrammar {
 					if (vn.contains(prodaux)) {
 						if(nt.get(symbol).addAll(nt.get(prodaux))) {
 							changed = true;
-							newProductions.get(symbol).remove(prod);
 						}
+						newProductions.get(symbol).remove(prod);
 					}
 				}
 			}
