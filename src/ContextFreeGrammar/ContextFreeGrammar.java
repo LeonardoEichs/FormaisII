@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Stack;
 
 public class ContextFreeGrammar {
 
@@ -92,11 +93,11 @@ public class ContextFreeGrammar {
 	}
 	
 	public void calculateFirst(){
-		for (String s : vt) {
-			s = s.replaceAll("\\s","");
+		for (String a : vt) {
+			a = a.replaceAll("\\s","");
 			HashSet<String> hs = new HashSet<String>();
-			hs.add(s);
-			first.put(s, hs);
+			hs.add(a);
+			first.put(a, hs);
 		}
 		for (String a : vn) {
 			first.put(a, new HashSet<String>());
@@ -288,6 +289,143 @@ public class ContextFreeGrammar {
 		ContextFreeGrammar eFree = new ContextFreeGrammar(vn, vt, newProductions, s);
 		return eFree;
 	}
+	
+	public ContextFreeGrammar removeSimpleProductions() {
+		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
+		HashMap<String, HashSet<String>> nt = new HashMap<String, HashSet<String>>();
+		boolean changed = true;
+		for (String a : vn) {
+			HashSet<String> temp = new HashSet<String>();
+			temp.add(a);
+			nt.put(a, temp);
+			
+			HashSet<String> newSymbolProductions = new HashSet<String>();
+			newSymbolProductions.addAll(productions.get(s));
+			newProductions.put(s, newSymbolProductions);
+		}
+		
+		while(changed) {
+			changed = false;
+			for(String symbol : vn) {
+				HashSet<String> symbolProductions = productions.get(symbol);
+				for(String prod : symbolProductions) {
+					String prodaux = prod.replaceAll("\\s","");
+					if (vn.contains(prodaux)) {
+						if(nt.get(symbol).addAll(nt.get(prodaux))) {
+							changed = true;
+							newProductions.get(symbol).remove(prod);
+						}
+					}
+				}
+			}
+		}
+		
+		for(String symbol : vn) {
+			HashSet<String> n = nt.get(symbol);
+			for(String s : n) {
+				newProductions.get(symbol).addAll(newProductions.get(s));
+			}
+		}
+		
+		ContextFreeGrammar simpleFree = new ContextFreeGrammar(vn, vt, newProductions, s);
+		return simpleFree;
+	}
+	
+	public ContextFreeGrammar removeInfertile() {
+		HashSet<String> nf = new HashSet<String>();
+		HashSet<String> unfertile = new HashSet<String>();
+		HashSet<String> nfUvt = new HashSet<String>();
+		
+		//build n1
+		for (String a : vn) {
+			HashSet<String> symbolProductions = productions.get(a);
+			searchProds : {
+				for(String prod : symbolProductions) {
+					ArrayList<String> tokens = tokenize(prod);	
+					if(vt.containsAll(tokens) || tokens.get(0).compareTo("&") == 0) {
+						nf.add(a);
+						break searchProds;
+					}
+				}
+				unfertile.add(a);
+			}
+		}
+		nfUvt.addAll(nf);
+		nfUvt.addAll(vt);
+		boolean changed = true;
+		while(changed) {
+			changed = false;
+			for (String symbol : unfertile) {
+				HashSet<String> symbolProductions = productions.get(symbol);	
+				searchProds: {
+					for(String prod : symbolProductions) {
+						ArrayList<String> tokens = tokenize(prod);
+						if(nfUvt.containsAll(tokens)) {
+							if(nf.add(symbol)) {
+								nfUvt.add(symbol);
+								changed = true;
+								break searchProds;
+							}
+							nfUvt.add(symbol);
+						}
+					}
+				}
+			}
+		}
+		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
+		for (String symbol : nf) {
+			HashSet<String> symbolProductions = new HashSet<String>();
+			symbolProductions.addAll(productions.get(symbol));
+			for(String prod : symbolProductions) {
+				ArrayList<String> tokens = tokenize(prod);
+				for(int i = 0; i < tokens.size(); i++) {
+					String c = tokens.get(i);
+					if (!(nf.contains(c) || vt.contains(c))) {
+						symbolProductions.remove(prod);
+					}
+				}
+			}
+			newProductions.put(symbol, symbolProductions);
+		}
+		
+		
+		ContextFreeGrammar noInfertile = new ContextFreeGrammar(nf, vt, newProductions, s);
+		return noInfertile;
+	}
+	
+	public ContextFreeGrammar removeUnreachable() {
+		HashSet<String> newvt = new HashSet<String>();
+		HashSet<String> newvn = new HashSet<String>();
+		Stack<String> toCheck = new Stack<String>();
+		toCheck.push(s);
+		newvn.add(s);
+		
+		while(!toCheck.isEmpty()) {
+			String symbol = toCheck.pop();
+			HashSet<String> symbolProductions = productions.get(symbol);
+			for(String prod : symbolProductions) {
+				ArrayList<String> tokens = tokenize(prod);
+				for(int i = 0; i < tokens.size(); i++) {
+					String c = tokens.get(i);
+					if(vn.contains(c)) {
+						if(!newvn.contains(c)) {
+							toCheck.add(c);
+							newvn.add(c);
+						}
+					} else {
+						newvt.add(c);
+					}
+				}
+			}
+		}
+		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
+		for (String a : newvn) {
+			newProductions.put(a, productions.get(a));
+		}
+		
+		return new ContextFreeGrammar(newvn, newvt, newProductions, s);
+	}
+	
 	
 	private ArrayList<String> tokenize(String prod){
 		/*
