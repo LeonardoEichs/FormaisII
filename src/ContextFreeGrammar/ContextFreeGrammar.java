@@ -19,6 +19,7 @@ public class ContextFreeGrammar {
 	private HashMap<String, HashSet<String>> first;
 	private HashMap<String, HashSet<String>> follow;
 	private String s;
+	private String id;
 	
 
 	/*
@@ -44,6 +45,33 @@ public class ContextFreeGrammar {
 		first = new HashMap<String, HashSet<String>>();
 		//calculateFirst();
 		follow = new HashMap<String, HashSet<String>>();
+	}
+	
+	public ContextFreeGrammar(ContextFreeGrammar g) {
+		String init = g.getInitialSymbol();
+		Set<String> newVn = new HashSet<String>();
+		Set<String> newVt = new HashSet<String>();
+		productions = new HashMap<String, HashSet<String>>();
+		
+		String gr = g.grammar;
+		for (String s : g.getVn()) {
+			newVn.add(s);
+		}
+		for (String s : g.getVt()) {
+			newVt.add(s);
+		}
+		
+		this.s = init;
+		this.vn = (HashSet<String>) newVn;
+		this.vt = (HashSet<String>)newVt;
+		this.grammar = gr;
+		for (String pr : this.vn) {
+			productions.put(pr, new HashSet<>());
+			for (String prod : g.getGrammarProductions(pr)) {
+				this.addProduction(pr, prod);
+				
+			}
+		}
 	}
 	
 	public String getDefinition() {
@@ -343,6 +371,15 @@ public class ContextFreeGrammar {
 		return prod;
 	}
 
+	public void addProduction(String nt, String prod) {
+		if (!this.vn.contains(nt)) {
+			this.vn.add(nt);
+			this.productions.put(nt, new HashSet<String>());
+		}
+		HashSet<String> p = this.productions.get(nt);
+		p.add(prod);
+		this.productions.put(nt, p);
+	}
 
 	public HashSet<String> getVt() {
 		return this.vt;
@@ -350,6 +387,32 @@ public class ContextFreeGrammar {
 	
 	public HashSet<String> getVn() {
 		return this.vn;
+	}
+	
+	public HashMap<String, HashSet<String>> getFirst() {
+		return first;
+	}
+	
+	public String getInitialSymbol() {
+		return this.s;
+	}
+	
+	public void setId(String id) {
+		this.id = id;
+	}
+	
+	public String getId() {
+		return this.id;
+	}
+
+	public void removeProduction(String nonterminal, String prod) {
+		HashSet<String> pSet = this.productions.get(nonterminal);
+		pSet.remove(prod);
+		this.productions.put(nonterminal, pSet);
+	}
+	
+	public HashMap<String, HashSet<String>> getProductions(){
+		return productions;
 	}
 
 }
