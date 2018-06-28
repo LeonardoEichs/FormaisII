@@ -99,7 +99,7 @@ public class LeftRecursionTest {
 	}
 	
 	@Test
-	void eliminateRecursionTest() {
+	public void eliminateRecursionTest() {
 		ContextFreeGrammar g = ContextFreeGrammar.isValidCFG(
 				"S -> B b | C d\n" + 
 				"B -> C a B | &\n" + 
@@ -108,6 +108,7 @@ public class LeftRecursionTest {
 		assertTrue(op.hasLeftRecursion());
 		String def = g.getDefinition();
 		
+		System.out.println(op.eliminateLeftRecursion().getDefinition());
 		assertEquals("S -> C a B b | C d | b\n" + 
 				"B -> C a B | &\n" + 
 				"C -> c C C1 | C1\n" + 
