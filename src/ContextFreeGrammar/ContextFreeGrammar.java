@@ -394,7 +394,7 @@ public class ContextFreeGrammar {
 			for(String prod : symbolProductions) {
 				ArrayList<String> tokens = tokenize(prod);
 				if(tokens.get(0).compareTo("&") != 0) {
-					for(int i = 0; i < tokens.size(); i++) {
+					/*for(int i = 0; i < tokens.size(); i++) {
 						String c = tokens.get(i);
 						if(ne.contains(c)) {
 							ArrayList<String> aux = new ArrayList<String>();
@@ -409,12 +409,32 @@ public class ContextFreeGrammar {
 					String auxString = tokens.toString();
 					auxString = auxString.replace("[", " ").replace("]", " ").replace(",", "");
 					newSymbolProductions.add(auxString);
+					*/
+					newSymbolProductions.addAll(getEpsilonCombination(tokens, ne));
 				}
 			}
 			newProductions.put(symbol, newSymbolProductions);
 		}
 		ContextFreeGrammar eFree = new ContextFreeGrammar(vn, vt, newProductions, s);
 		return eFree;
+	}
+	
+	private HashSet<String> getEpsilonCombination(ArrayList<String> tokens, HashSet<String> ne){
+		HashSet<String> comb = new HashSet<String>();
+		String auxString = tokens.toString();
+		auxString = auxString.replace("[", " ").replace("]", " ").replace(",", "");
+		comb.add(auxString);
+		for(int i = 0; i < tokens.size(); i++) {
+			String c = tokens.get(i);
+			if(ne.contains(c)) {
+				ArrayList<String> aux = new ArrayList<String>();
+				aux.addAll(tokens);
+				aux.remove(i);
+				comb.addAll(getEpsilonCombination(aux, ne));
+			}
+			
+		}
+		return comb;
 	}
 	
 	public ContextFreeGrammar removeSimpleProductions() {
