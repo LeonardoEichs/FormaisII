@@ -81,13 +81,22 @@ public class Operations extends JFrame {
 		JComboBox<String> cbOpOperations = new JComboBox<String>();
 		cbOpOperations.addItem("Factor");
 		cbOpOperations.addItem("Eliminate Left Recursion");
+		cbOpOperations.addItem("Eliminate Cycles");
+		cbOpOperations.addItem("Eliminate Epsilons");
+		cbOpOperations.addItem("Eliminate Useless Symbols");
+		cbOpOperations.addItem("Eliminate Infertile");
+		cbOpOperations.addItem("Eliminate Unreachables");
+		cbOpOperations.addItem("Proper CFG");
+
+
 		cbOpOperations.addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {
 		    	String selected = String.valueOf(cbOpOperations.getSelectedItem());
 		    	if (selected.equals("Factor")) {
 		    		spinnerMaxSteps.setEnabled(true);
 		    		lbOpMaxSteps.setEnabled(true);
-		    	} else {
+		    	} 
+		    	else {
 		    		spinnerMaxSteps.setEnabled(false);
 		    		lbOpMaxSteps.setEnabled(false);
 		    	}
@@ -116,9 +125,9 @@ public class Operations extends JFrame {
 				}
 				int maxSteps = (Integer) spinnerMaxSteps.getValue();
 				
-				//if (saveOperation(operation, cfg, maxSteps)) {
-					//Operations.this.exit();
-				//}
+				if (saveOperation(operation, cfg, maxSteps)) {
+					Operations.this.exit();
+				}
 			}
 		});
 		
@@ -188,7 +197,7 @@ public class Operations extends JFrame {
 		this.populateComboBoxes();
 	}
 	
-	/*
+
 	// Save new language based on selections
 	private boolean saveOperation(String operation, ContextFreeGrammar cfg, int maxSteps) {
 		if (cfg == null) {
@@ -210,7 +219,8 @@ public class Operations extends JFrame {
 				}
 			}
 			
-		} else if (operation.equals("Eliminate Left Recursion")) {
+		} 
+		else if (operation.equals("Eliminate Left Recursion")) {
 			if (!op.hasLeftRecursion()) {
 				warning = cfg.getId() + " does not have left recursion.\n"
 						+ "Nothing will be done."; 
@@ -218,7 +228,33 @@ public class Operations extends JFrame {
 				mainFrame.addToPanel(op.eliminateLeftRecursion());
 			}
 			
-		} else {
+		}
+		else if (operation.equals("Eliminate Cycles")) {
+			mainFrame.addToPanel(cfg.removeSimpleProductions());
+		}
+		else if (operation.equals("Eliminate Epsilons")) {
+			mainFrame.addToPanel(cfg.removeEpsilon());
+		}
+		else if (operation.equals("Eliminate Useless Symbols")) {
+			mainFrame.addToPanel(cfg.removeInfertile().removeUnreachable());
+		}
+		else if (operation.equals("Eliminate Infertile")) {
+			mainFrame.addToPanel(cfg.removeInfertile());
+		} 
+		else if (operation.equals("Eliminate Unreachable")) {
+			mainFrame.addToPanel(cfg.removeUnreachable());
+		} 
+		else if (operation.equals("Proper CFG")) {
+			ContextFreeGrammar epsilon = cfg.removeEpsilon();
+			mainFrame.addToPanel(epsilon);
+			ContextFreeGrammar cycles = epsilon.removeSimpleProductions();
+			mainFrame.addToPanel(cycles);
+			ContextFreeGrammar infertile = cycles.removeInfertile();
+			mainFrame.addToPanel(infertile);
+			ContextFreeGrammar unreachable = infertile.removeUnreachable();
+			mainFrame.addToPanel(unreachable);
+		}
+		else {
 			return false;
 		}
 		
@@ -229,7 +265,6 @@ public class Operations extends JFrame {
 		return true;
 		
 	}
-	*/
 
 	// Populate combo boxes with regular languages from the list
 	private void populateComboBoxes() {

@@ -85,7 +85,7 @@ public class ContextFreeGrammar {
 	}
 	
 	public Boolean isEmptyGrammar() {
-		return removeInfertile().getVn().contains(this.getInitialSymbol());
+		return !removeInfertile().getVn().contains(this.getInitialSymbol());
 	}
 	
 	public String getDefinition() {
@@ -575,16 +575,6 @@ public class ContextFreeGrammar {
 	
 	
 	private ArrayList<String> tokenize(String prod){
-		/*
-		Pattern pattern = Pattern.compile("([A-Z][0-9]*)|([a-z]+)|(\\+)|(\\()|(\\))");
-		Matcher m = pattern.matcher(prod);
-		ArrayList<String> tokens = new ArrayList<String>();
-		while(m.find()){
-		    String token = m.group();   
-		    tokens.add(token);
-		}
-		return tokens;
-		*/
 		String[] br = prod.split(" ");
 		ArrayList<String> list = new ArrayList<String>();
 		for (String str : br) {
@@ -745,4 +735,8 @@ public class ContextFreeGrammar {
 		return productions;
 	}
 
+    @Override
+    public String toString(){
+        return this.getId();
+    }
 }

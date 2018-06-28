@@ -87,8 +87,8 @@ public class MainFrame extends JFrame {
 		
 		// JButtons:
 		
-		JButton btnMainAddRL = new JButton("Add CFG");
-		btnMainAddRL.addActionListener(new ActionListener() {
+		JButton btnMainAddCFG = new JButton("Add CFG");
+		btnMainAddCFG.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				new AddCFG(MainFrame.this);
 			}
@@ -106,8 +106,8 @@ public class MainFrame extends JFrame {
 		});
 
 		
-		JButton btnMainRemoveRL = new JButton("Remove");
-		btnMainRemoveRL.addActionListener(new ActionListener() {
+		JButton btnMainRemoveCFG = new JButton("Remove");
+		btnMainRemoveCFG.addActionListener(new ActionListener() {
 		    public void actionPerformed(ActionEvent e) {
 		    	MainFrame.this.removeSelected();
 		    }
@@ -121,6 +121,13 @@ public class MainFrame extends JFrame {
 		    }
 		});
 		
+		JButton btnMainVerifications = new JButton("CFG Properties");
+		btnMainVerifications.addActionListener(new ActionListener() {
+		    public void actionPerformed(ActionEvent e) {
+		    	new Properties(MainFrame.this);
+		    }
+		});
+		
 		
 		// Scrollable JList:
 		
@@ -128,8 +135,8 @@ public class MainFrame extends JFrame {
 		jListMainRL.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		updateJList();
 		
-		JScrollPane scrollPaneMainRL = new JScrollPane();
-		scrollPaneMainRL.setViewportView(jListMainRL);
+		JScrollPane scrollPaneMainCFG = new JScrollPane();
+		scrollPaneMainCFG.setViewportView(jListMainRL);
 		
 		// Close Window action:
 		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
@@ -146,44 +153,44 @@ public class MainFrame extends JFrame {
 		
 		GroupLayout gl_mainPanel = new GroupLayout(mainPanel);
 		gl_mainPanel.setHorizontalGroup(
-			gl_mainPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_mainPanel.createSequentialGroup()
-					.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING, false)
-							.addComponent(btnMainAddRL, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btnMainViewEdit, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btnMainRemoveRL, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
-							.addComponent(btnMainOperations, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
-							)
-					.addContainerGap()
-					.addContainerGap()
-					.addComponent(scrollPaneMainRL, GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
-					.addPreferredGap(ComponentPlacement.RELATED)
-					)
-				.addGroup(gl_mainPanel.createSequentialGroup()
-					.addGap(46)
-					.addComponent(btnMainOperations, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
-					.addGap(40))
-		);
-		gl_mainPanel.setVerticalGroup(
-			gl_mainPanel.createParallelGroup(Alignment.LEADING)
-				.addGroup(gl_mainPanel.createSequentialGroup()
-					.addContainerGap()
-					.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_mainPanel.createSequentialGroup()
-							.addComponent(scrollPaneMainRL)
-							.addGap(40))
-						.addGroup(gl_mainPanel.createSequentialGroup()
-							.addComponent(btnMainAddRL, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-							.addPreferredGap(ComponentPlacement.RELATED)
-							.addComponent(btnMainViewEdit, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-							.addGap(7)
-							.addComponent(btnMainRemoveRL, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-							.addGap(7)
-							.addPreferredGap(ComponentPlacement.RELATED, 254, Short.MAX_VALUE)
-							.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
-								.addComponent(btnMainOperations, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))))
-					.addContainerGap())
-		);
+				gl_mainPanel.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_mainPanel.createSequentialGroup()
+						.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING, false)
+								.addComponent(btnMainAddCFG, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnMainViewEdit, Alignment.TRAILING, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnMainRemoveCFG, GroupLayout.PREFERRED_SIZE, 140, GroupLayout.PREFERRED_SIZE))
+							.addContainerGap()
+						.addContainerGap()
+						.addComponent(scrollPaneMainCFG, GroupLayout.DEFAULT_SIZE, 330, Short.MAX_VALUE)
+						.addPreferredGap(ComponentPlacement.RELATED)
+						)
+					.addGroup(gl_mainPanel.createSequentialGroup()
+						.addGap(46)
+						.addComponent(btnMainOperations, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+						.addGap(14)
+						.addComponent(btnMainVerifications, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+						.addGap(40))
+			);
+			gl_mainPanel.setVerticalGroup(
+				gl_mainPanel.createParallelGroup(Alignment.LEADING)
+					.addGroup(gl_mainPanel.createSequentialGroup()
+						.addContainerGap()
+						.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+							.addGroup(gl_mainPanel.createSequentialGroup()
+								.addComponent(scrollPaneMainCFG)
+								.addGap(40))
+							.addGroup(gl_mainPanel.createSequentialGroup()
+								.addComponent(btnMainAddCFG, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED)
+								.addComponent(btnMainViewEdit, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+								.addGap(7)
+								.addComponent(btnMainRemoveCFG, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+								.addPreferredGap(ComponentPlacement.RELATED, 254, Short.MAX_VALUE)
+								.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+									.addComponent(btnMainOperations, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+									.addComponent(btnMainVerifications, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))))
+						.addContainerGap())
+	);
 		
 		mainPanel.setLayout(gl_mainPanel);
 		
