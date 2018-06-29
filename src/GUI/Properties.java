@@ -87,6 +87,7 @@ public class Properties extends JFrame {
 		cbPropertiesProp.addItem("Has Left Recursion?");
 		cbPropertiesProp.addItem("Is Factored?");
 		cbPropertiesProp.addItem("Is Empty?");
+		cbPropertiesProp.addItem("Is Infinite?");
 		cbPropertiesProp.addActionListener (new ActionListener () {
 		    public void actionPerformed(ActionEvent e) {
 		    	String selected = String.valueOf(cbPropertiesProp.getSelectedItem());
@@ -167,8 +168,16 @@ public class Properties extends JFrame {
 						response += cfg.getId() + " is not empty.\n";
 					}
 				}
+				else if (property.equals("Is Infinite?")) {
+					if (cfg.isInfinite()) {
+						response += "L(" + cfg.getId() + ")" + " is infinite.\n"; 
+					} else {
+						response += "L(" + cfg.getId() + ")" + " is finite.\n"; 
+					}
+				}
 				JOptionPane.showMessageDialog(Properties.this, response);
 			}
+			
 		});	
 		
 		JButton btnCancel = new JButton("Cancel");

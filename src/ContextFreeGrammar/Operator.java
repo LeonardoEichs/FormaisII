@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import Test.CFGTest;
+
 public class Operator {
 	
 	private ContextFreeGrammar cfg;
@@ -86,6 +88,7 @@ public class Operator {
 	public ArrayList<ContextFreeGrammar> factorGrammar(int steps) {
 		ArrayList<ContextFreeGrammar> attempts = new ArrayList<>();
 		if (isFactored()) {
+			System.out.println(cfg.getId() + " is factored already.");
 			return attempts;
 		}
 
@@ -94,8 +97,7 @@ public class Operator {
 		
 		int i = 1;
 		while(i <= steps) {
-			ContextFreeGrammar cfgFc = newOperator.factorGrammar(previous);
-			ContextFreeGrammar g = ContextFreeGrammar.isValidCFG(mapToInput(cfgFc.getProductions(), cfgFc.getInitialSymbol()));
+			ContextFreeGrammar g = ContextFreeGrammar.isValidCFG(mapToInput(newOperator.factorGrammar(previous).getProductions(), this.cfg.getInitialSymbol()));
 			g.setId(cfg.getId() + " [F" + i + "]");
 			newOperator = new Operator(g);
 			attempts.add(g);
@@ -106,6 +108,15 @@ public class Operator {
 			i++;
 		}
 		
+
+		if(newOperator.isFactored()) {
+			System.out.println(cfg.getId() + " is factored in " + steps + "steps.");
+		}
+		else {
+			System.out.println(cfg.getId() + " is not factored in " + steps + "steps.");
+
+		}
+		
 		return attempts;
 	}
 	
@@ -113,6 +124,7 @@ public class Operator {
 		ArrayList<String> nProd1, nProd2; // Production to be analyzed and look-ahead
 		Set<String> prod;
 		ContextFreeGrammar newG = new ContextFreeGrammar(g);
+		Operator op = new Operator(newG);
 		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
 		boolean repeat = true;
 		boolean stepDone = false;
@@ -122,7 +134,7 @@ public class Operator {
 			HashSet<String> production = new HashSet<String>();
 			prod = newG.getGrammarProductions(nonterminal);
 			ArrayList<String> prods = getProdList(prod);
-			String newNT = createNewVN(nonterminal);
+			String newNT = op.createNewVN(nonterminal);
 			for(int i = 0; i < prods.size(); i++) {
 				nProd1 = tokenize(prods.get(i));
 				for(int j = i+1; j < prods.size(); j++) {
@@ -356,12 +368,20 @@ public class Operator {
 	}
 
 	private String createNewVN(String s) {
+		int number;
 		if(s.length() == 1) {
-			return s + "" + 1;
+			number = 1;
 		}
-		String newVN = s.substring(1, s.length());
-		int number = Integer.parseInt(newVN) + 1;
-		return s.charAt(0) + "" + number;
+		else {
+			number = Integer.parseInt(s.substring(1, s.length())) + 1;
+		}
+		String newSymbol = s.charAt(0) + "" + number;
+		while(cfg.getVn().contains(newSymbol)) {
+			number = number + 1;
+			newSymbol = s.charAt(0) + "" + number;
+		}
+		return newSymbol;
+		
 	}
 
 	private ArrayList<String> tokenize(String prod){
@@ -412,6 +432,7 @@ public class Operator {
 						continue;
 					}
 					if (firstSymbolAiProd.equals(aj)) { // firstSymbolAiProd == Aj
+						System.out.println("* Indirect Recursion ------ Ai: " + ai.trim() + " | Aj: " + aj.trim() + " | Prod: " + aiProd.trim());
 						for(String prodJ : newG.getGrammarProductions(aj)) {
 							if(!prodJ.trim().equals("&")) {
 								productionSet.add(prodJ.trim() + aiProd.substring(aj.length()+1));
@@ -461,6 +482,7 @@ public class Operator {
 			for(int i = 0; i < prods.size(); i++) {
 				ArrayList<String> nProd1 = tokenize(prods.get(i));
 				if(nProd1.get(0).equals(nonterminal)){
+					System.out.println("* Direct Recursion ------ Symbol: " + nonterminal.trim() + " | Prod: " + prods.get(i).trim());
 					productionSet = new HashSet<String>();
 					for(String p : prods) {
 						if(!tokenize(p).get(0).equals(nonterminal)) {

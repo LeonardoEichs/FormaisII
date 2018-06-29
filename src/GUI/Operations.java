@@ -225,7 +225,9 @@ public class Operations extends JFrame {
 				warning = cfg.getId() + " does not have left recursion.\n"
 						+ "Nothing will be done."; 
 			} else {
-				mainFrame.addToPanel(op.eliminateLeftRecursion());
+				ContextFreeGrammar cfgLeftRec = op.eliminateLeftRecursion();
+				cfgLeftRec.setId(cfg.getId() + " [No Left Rec.]");
+				mainFrame.addToPanel(cfgLeftRec);
 			}
 			
 		}

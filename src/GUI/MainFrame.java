@@ -2,11 +2,13 @@ package GUI;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.PrintStream;
 import java.util.HashMap;
 
 import javax.swing.GroupLayout;
@@ -17,6 +19,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.ListSelectionModel;
 import javax.swing.UIManager;
@@ -32,6 +35,8 @@ public class MainFrame extends JFrame {
 	private static final long serialVersionUID = 6315534773769970357L;
 	private JList<String> jListMainRL;
 	private HashMap<String, ContextFreeGrammar> languages = new HashMap<String, ContextFreeGrammar>();
+	private JTextArea jtextArea1;
+	
 
 	/**
 	 * Launch the application.
@@ -78,8 +83,8 @@ public class MainFrame extends JFrame {
 	private void initialize() {
 		this.setTitle("INE5421");
 		this.setResizable(false);
-		this.setBounds(100, 100, 500, 400);
-		this.setMinimumSize(new Dimension(400, 300));
+		this.setBounds(100, 100, 500, 500);
+		this.setMinimumSize(new Dimension(400, 400));
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 				
 		JPanel mainPanel = new JPanel();
@@ -105,6 +110,14 @@ public class MainFrame extends JFrame {
 
 		});
 
+		jtextArea1 = new JTextArea(100, 100);
+		JScrollPane scrollPane = new JScrollPane(jtextArea1); 
+		jtextArea1.setEditable(false);
+		PrintStream outStream = new PrintStream( new TextAreaOutputStream(jtextArea1));
+        jtextArea1.setFont(new Font(Font.MONOSPACED, Font.BOLD, 12));
+
+        System.setOut( outStream );
+        System.setErr( outStream );
 		
 		JButton btnMainRemoveCFG = new JButton("Remove");
 		btnMainRemoveCFG.addActionListener(new ActionListener() {
@@ -170,27 +183,42 @@ public class MainFrame extends JFrame {
 						.addGap(14)
 						.addComponent(btnMainVerifications, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
 						.addGap(40))
-			);
-			gl_mainPanel.setVerticalGroup(
-				gl_mainPanel.createParallelGroup(Alignment.LEADING)
 					.addGroup(gl_mainPanel.createSequentialGroup()
-						.addContainerGap()
-						.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
-							.addGroup(gl_mainPanel.createSequentialGroup()
-								.addComponent(scrollPaneMainCFG)
-								.addGap(40))
-							.addGroup(gl_mainPanel.createSequentialGroup()
-								.addComponent(btnMainAddCFG, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED)
-								.addComponent(btnMainViewEdit, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-								.addGap(7)
-								.addComponent(btnMainRemoveCFG, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED, 254, Short.MAX_VALUE)
-								.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
-									.addComponent(btnMainOperations, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
-									.addComponent(btnMainVerifications, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE))))
-						.addContainerGap())
+							.addGap(7)
+							.addComponent(jtextArea1, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+							.addGap(7))
+			);
+		gl_mainPanel.setVerticalGroup(
+			gl_mainPanel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_mainPanel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_mainPanel.createSequentialGroup()
+							.addComponent(scrollPaneMainCFG)
+							.addGap(40))
+						.addGroup(gl_mainPanel.createSequentialGroup()
+							.addComponent(btnMainAddCFG, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(btnMainViewEdit, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+							.addGap(7)
+							.addComponent(btnMainRemoveCFG, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED, 254, Short.MAX_VALUE)
+							.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+								.addComponent(btnMainOperations, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+								.addComponent(btnMainVerifications, GroupLayout.PREFERRED_SIZE, 30, GroupLayout.PREFERRED_SIZE)
+									)
+								)
+						)							
+					.addContainerGap()
+					.addGap(7)
+					.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
+							.addComponent(jtextArea1, 100, 100, GroupLayout.PREFERRED_SIZE)
+							)
+					.addContainerGap()
+
+					)
 	);
+		
 		
 		mainPanel.setLayout(gl_mainPanel);
 		

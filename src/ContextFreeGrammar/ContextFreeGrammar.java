@@ -7,6 +7,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
 
+import javax.naming.Context;
+
 public class ContextFreeGrammar {
 
 	private String grammar;
@@ -28,6 +30,7 @@ public class ContextFreeGrammar {
 		vt = new HashSet<String>();
 		productions = new HashMap<String, HashSet<String>>();
 		first = new HashMap<String, HashSet<String>>();
+		firstNT = new HashMap<String, HashSet<String>>();
 		//calculateFirst();
 		follow = new HashMap<String, HashSet<String>>();
 	}
@@ -53,7 +56,9 @@ public class ContextFreeGrammar {
 		vt = new HashSet<String>();
 		productions = new HashMap<String, HashSet<String>>();
 		first = new HashMap<String, HashSet<String>>();
+		firstNT = new HashMap<String, HashSet<String>>();
 		//calculateFirst();
+		//calculateFirstNT();
 		follow = new HashMap<String, HashSet<String>>();
 	}
 	
@@ -82,11 +87,55 @@ public class ContextFreeGrammar {
 				
 			}
 		}
+		this.first = g.first;
+		this.firstNT = g.firstNT;
+		this.follow = g.follow;
 	}
 	
 	public Boolean isEmptyGrammar() {
 		return !removeInfertile().getVn().contains(this.getInitialSymbol());
 	}
+	
+	public Boolean isInfinite() {
+		ContextFreeGrammar newG = this.removeInfertile();
+		newG = newG.removeUnreachable();
+				
+		String symbol = "#";
+		
+		for(String nonTerminal : newG.getVn()) {
+			HashSet<String> markedSymbol = new HashSet<String>();
+			HashSet<String> markedSymbolOld = new HashSet<String>();
+			markedSymbol.add(nonTerminal);
+			
+			do {
+				markedSymbolOld.addAll(markedSymbol);
+				for(String nt : newG.getVn()) {
+					for(String prod : newG.getGrammarProductions(nt)) {
+						ArrayList<String> tokenizedProd = tokenize(prod);
+						for(String letter : tokenizedProd) {
+							if(markedSymbol.contains(letter)) {
+								if(nt.equals(nonTerminal)) {
+									markedSymbol.add(symbol);
+								}
+								else {
+									markedSymbol.add(nt);
+								}
+							}
+						}
+						
+					}
+				}
+			}while(!markedSymbol.equals(markedSymbolOld));
+			
+			if(markedSymbol.contains(symbol)) {
+				return true;
+			}
+
+		}
+		
+		return false;
+	}
+
 	
 	public String getDefinition() {
 		String grammar = "";
