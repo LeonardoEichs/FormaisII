@@ -349,8 +349,7 @@ public class ContextFreeGrammar {
 				for(int i = 0; i < tokens.size()-1; i++) {
 					String c = tokens.get(i);
 					if(vn.contains(c)) {
-						String c2 = tokens.get(i+1);
-						follow.get(c).addAll(first.get(c2));
+						follow.get(c).addAll(this.getGroupFirst(tokens, i+1));
 						follow.get(c).remove("&");
 					}
 				}
@@ -370,11 +369,10 @@ public class ContextFreeGrammar {
 					for(int i = 0; i < tokens.size()-1; i++) {
 						String b = tokens.get(i);
 						if(vn.contains(b)) {
-							String c = tokens.get(i+1);
 							if (a.compareTo(b) == 0) {
 								continue;
 							}
-							if(first.get(c).contains("&")){
+							if(checkEpsilonFirst(tokens, i+1)){
 								HashSet<String> aux = follow.get(b);
 								if(aux.addAll(follow.get(a))){
 									changed = true;
@@ -393,6 +391,28 @@ public class ContextFreeGrammar {
 				}
 			}
 		}
+	}
+	
+	public boolean checkEpsilonFirst(ArrayList<String> tokens, int i) {
+		for (int j = i; j < tokens.size(); j++) {
+			String c = tokens.get(j);
+			if(!first.get(c).contains("&")) {
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	public HashSet<String> getGroupFirst(ArrayList<String> tokens, int i){
+		HashSet<String> groupFirst = new HashSet<String>();
+		for(int j = i; j < tokens.size(); j++) {
+			String c = tokens.get(j);
+			groupFirst.addAll(first.get(c));
+			if (!first.get(c).contains("&")){
+				break;
+			}
+		}
+		return groupFirst;
 	}
 	
 	public HashSet<String> getFirst(String a){
@@ -571,8 +591,10 @@ public class ContextFreeGrammar {
 		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
 		for (String symbol : nf) {
 			HashSet<String> symbolProductions = new HashSet<String>();
+			HashSet<String> symbolProductionsAux = new HashSet<String>();
 			symbolProductions.addAll(productions.get(symbol));
-			for(String prod : symbolProductions) {
+			symbolProductionsAux.addAll(symbolProductions);
+			for(String prod : symbolProductionsAux) {
 				ArrayList<String> tokens = tokenize(prod);
 				for(int i = 0; i < tokens.size(); i++) {
 					String c = tokens.get(i);
