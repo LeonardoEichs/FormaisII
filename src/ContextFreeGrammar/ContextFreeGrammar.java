@@ -542,8 +542,10 @@ public class ContextFreeGrammar {
 		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
 		for (String symbol : nf) {
 			HashSet<String> symbolProductions = new HashSet<String>();
+			HashSet<String> symbolProductionsAux = new HashSet<String>();
 			symbolProductions.addAll(productions.get(symbol));
-			for(String prod : symbolProductions) {
+			symbolProductionsAux.addAll(symbolProductions);
+			for(String prod : symbolProductionsAux) {
 				ArrayList<String> tokens = tokenize(prod);
 				for(int i = 0; i < tokens.size(); i++) {
 					String c = tokens.get(i);
