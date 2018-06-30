@@ -13,10 +13,17 @@ public class Operator {
 	
 	private ContextFreeGrammar cfg;
 
+	/**
+	 * Constructor
+	 */
 	public Operator(ContextFreeGrammar cfg) {
 		this.cfg = cfg;
 	}
 	
+	/**
+	 * verifies if there are left recursions
+	 * @return true if there is some recursion
+	 */
 	public boolean hasLeftRecursion() {
 		// For every vn
 		for (String nt: this.cfg.getVn()) {
@@ -28,6 +35,10 @@ public class Operator {
 		return false;
 	}
 	
+	/**
+	 * checks if is factored
+	 * @return true if it is factored
+	 */
 	public boolean isFactored() {
 		Set<String> productions;
 		Set<String> firstSet;
@@ -64,6 +75,11 @@ public class Operator {
 		return true;
 	}
 	
+	/**
+	 * all first of the production
+	 * @param production
+	 * @return
+	 */
 	public Set<String> getProductionFirstSet(List<String> production){
 		HashSet<String> aux;
 		List<String> prodToken = production;
@@ -85,6 +101,11 @@ public class Operator {
 		return aux;
 	}
 	
+	/**
+	 * factor grammar in a number of steps
+	 * @param steps
+	 * @return all steps
+	 */
 	public ArrayList<ContextFreeGrammar> factorGrammar(int steps) {
 		ArrayList<ContextFreeGrammar> attempts = new ArrayList<>();
 		if (isFactored()) {
@@ -120,6 +141,11 @@ public class Operator {
 		return attempts;
 	}
 	
+	/**
+	 * factorization of a grammar
+	 * @param g
+	 * @return factored g
+	 */
 	public ContextFreeGrammar factorGrammar(ContextFreeGrammar g) {
 		ArrayList<String> nProd1, nProd2; // Production to be analyzed and look-ahead
 		Set<String> prod;
@@ -309,6 +335,12 @@ public class Operator {
 		
 	}
 
+	/**
+	 * creates an string representation of the grammar
+	 * @param new_prod
+	 * @param string
+	 * @return grammar
+	 */
 	private static String mapToInput(HashMap<String, HashSet<String>> new_prod, String string) {
 		
 		String aux = "";
@@ -356,6 +388,11 @@ public class Operator {
 		
 	}
 
+	/**
+	 * transforms set into array list
+	 * @param prod
+	 * @return
+	 */
 	private ArrayList<String> getProdList(Set<String> prod) {
 		ArrayList<String> l = new ArrayList<>();
 		for (String s : prod) {
@@ -366,7 +403,13 @@ public class Operator {
 		}
 		return l;
 	}
-
+	
+	/**
+	 * creates a new symbol based on the input
+	 * for example: input = S3, output = S4
+	 * @param s
+	 * @return new symbol
+	 */
 	private String createNewVN(String s) {
 		int number;
 		if(s.length() == 1) {
@@ -384,6 +427,11 @@ public class Operator {
 		
 	}
 
+	/**
+	 * Separate string into an array list
+	 * @param prod
+	 * @return array list
+	 */
 	private ArrayList<String> tokenize(String prod){
 		String[] br = prod.split(" ");
 		ArrayList<String> list = new ArrayList<String>();
@@ -395,6 +443,10 @@ public class Operator {
 		return list;
 	}
 
+	/**
+	 * returns an equivalent CFG without left recursion
+	 * @return
+	 */
 	public ContextFreeGrammar eliminateLeftRecursion() {
 		ContextFreeGrammar newG = this.cfg;
 		Operator newOp = new Operator(newG);

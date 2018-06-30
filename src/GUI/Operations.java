@@ -239,7 +239,7 @@ public class Operations extends JFrame {
 		else if (operation.equals("Eliminate Epsilons")) {
 			ContextFreeGrammar cfgNew = cfg.removeEpsilon();
 			cfgNew.setId(cfg.getId() + " [&-free]");
-			mainFrame.addToPanel(cfgNew);			
+			mainFrame.addToPanel(cfgNew);
 		}
 		else if (operation.equals("Eliminate Useless Symbols")) {
 			ContextFreeGrammar cfgNew = cfg.removeInfertile().removeUnreachable();
@@ -261,22 +261,26 @@ public class Operations extends JFrame {
 			ContextFreeGrammar epsilon = cfg.removeEpsilon();
 			System.out.println("&-free Production -----------");
 			System.out.println(epsilon.getDefinition());
+			System.out.println("-----------------------------");
 			epsilon.setId(cfg.getId() + " [&-free]");
 			mainFrame.addToPanel(epsilon);
 			ContextFreeGrammar cycles = epsilon.removeSimpleProductions();
 			System.out.println("Cycles-free Production -----------");
 			System.out.println(cycles.getDefinition());
-			cycles.setId(cfg.getId() + " [No Cyc.]");
+			System.out.println("-----------------------------");
+			cycles.setId(epsilon.getId() + " [No Cyc.]");
 			mainFrame.addToPanel(cycles);
 			ContextFreeGrammar infertile = cycles.removeInfertile();
 			System.out.println("Infertile-free Production -----------");
 			System.out.println(infertile.getDefinition());
-			infertile.setId(cfg.getId() + " [No Infert.]");
+			System.out.println("-----------------------------");
+			infertile.setId(cycles.getId() + " [No Infert.]");
 			mainFrame.addToPanel(infertile);
 			ContextFreeGrammar unreachable = infertile.removeUnreachable();
 			System.out.println("Unreachable-free Production -----------");
 			System.out.println(unreachable.getDefinition());
-			unreachable.setId(cfg.getId() + " [No Unrea.]");
+			System.out.println("-----------------------------");
+			unreachable.setId(cfg.getId() + " [Proper]");
 			mainFrame.addToPanel(unreachable);
 		}
 		else {

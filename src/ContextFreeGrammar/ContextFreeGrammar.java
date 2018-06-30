@@ -11,30 +11,36 @@ import javax.naming.Context;
 
 public class ContextFreeGrammar {
 
-	private String grammar;
-	private HashSet<String> vn;
-	private HashSet<String> vt;
-	private HashMap<String, HashSet<String>> productions;
-	private HashMap<String, HashSet<String>> first;
-	private HashMap<String, HashSet<String>> firstNT;
-	private HashMap<String, HashSet<String>> follow;
-	private String s;
-	private String id;
+	private String grammar; // The input grammar entered by the user
+	private HashSet<String> vn; // non terminal symbols
+	private HashSet<String> vt; // terminal symbols
+	private HashMap<String, HashSet<String>> productions; // production rules
+	private HashMap<String, HashSet<String>> first; // firsts
+	private HashMap<String, HashSet<String>> firstNT; // firstsNT
+	private HashMap<String, HashSet<String>> follow; // follow
+	private String s; // initial symbol
+	private String id; // an unique ID for the CGF
 	
 
-	/*
+	/**
 	 * Default constructor
 	 */
 	public ContextFreeGrammar() {
-		vn = new HashSet<String>();
+		vn = new HashSet<String>(); 
 		vt = new HashSet<String>();
 		productions = new HashMap<String, HashSet<String>>();
 		first = new HashMap<String, HashSet<String>>();
 		firstNT = new HashMap<String, HashSet<String>>();
-		//calculateFirst();
 		follow = new HashMap<String, HashSet<String>>();
 	}
 	
+	/**
+	 * Hard-Coded Constructor
+	 * @param _vn non-terminal entered by user
+	 * @param _vt terminal entered by user
+	 * @param _productions productions entered by user
+	 * @param _s initial symbol entered by user
+	 */
 	public ContextFreeGrammar(HashSet<String> _vn, HashSet<String> _vt, HashMap<String, HashSet<String>> _productions, String _s) {
 		this.vn = _vn;
 		s = _s;
@@ -47,8 +53,9 @@ public class ContextFreeGrammar {
 		calculateFollow();
 	}
 	
-	/*
+	/**
 	 * Constructor with input
+	 * @param inp the regular grammar entered by the user
 	 */
 	public ContextFreeGrammar(String inp) {
 		this.grammar = inp;
@@ -57,11 +64,14 @@ public class ContextFreeGrammar {
 		productions = new HashMap<String, HashSet<String>>();
 		first = new HashMap<String, HashSet<String>>();
 		firstNT = new HashMap<String, HashSet<String>>();
-		//calculateFirst();
-		//calculateFirstNT();
 		follow = new HashMap<String, HashSet<String>>();
 	}
 	
+	/**
+	 * Constructor
+	 * Creates a new grammar based on the parameter
+	 * @param g the grammar to have data copied from
+	 */
 	public ContextFreeGrammar(ContextFreeGrammar g) {
 		String init = g.getInitialSymbol();
 		Set<String> newVn = new HashSet<String>();
@@ -92,28 +102,42 @@ public class ContextFreeGrammar {
 		this.follow = g.follow;
 	}
 	
+	/**
+	 * Checks if L(G) is Empty
+	 * @return true if is empty
+	 */
 	public Boolean isEmptyGrammar() {
 		return !removeInfertile().getVn().contains(this.getInitialSymbol());
 	}
 	
+	/**
+	 * Checks if L(G) is finite or infinite
+	 * @return true if is infinite, false if finite
+	 */
 	public Boolean isInfinite() {
+		//
 		ContextFreeGrammar newG = this.removeInfertile();
 		newG = newG.removeUnreachable();
-				
+		//	
 		String symbol = "#";
 		
 		for(String nonTerminal : newG.getVn()) {
+			// nt
 			HashSet<String> markedSymbol = new HashSet<String>();
 			HashSet<String> markedSymbolOld = new HashSet<String>();
+			// mark nt
 			markedSymbol.add(nonTerminal);
 			
 			do {
 				markedSymbolOld.addAll(markedSymbol);
 				for(String nt : newG.getVn()) {
 					for(String prod : newG.getGrammarProductions(nt)) {
+						// for each production ...
 						ArrayList<String> tokenizedProd = tokenize(prod);
 						for(String letter : tokenizedProd) {
+							// if symbol in production is marked
 							if(markedSymbol.contains(letter)) {
+								// mark which nt producing it
 								if(nt.equals(nonTerminal)) {
 									markedSymbol.add(symbol);
 								}
@@ -127,6 +151,7 @@ public class ContextFreeGrammar {
 				}
 			}while(!markedSymbol.equals(markedSymbolOld));
 			
+			// if symbol # was marked is self embedded, therefore infinite
 			if(markedSymbol.contains(symbol)) {
 				return true;
 			}
@@ -136,7 +161,10 @@ public class ContextFreeGrammar {
 		return false;
 	}
 
-	
+	/**
+	 * Printable form of the grammar
+	 * @return string that contains printable grammar
+	 */
 	public String getDefinition() {
 		String grammar = "";
 		String aux = "";
@@ -161,8 +189,13 @@ public class ContextFreeGrammar {
 		}
 		this.grammar = grammar;
 		return grammar;
-}
+	}
 	
+	/**
+	 * Checks if input is a valid grammar
+	 * @param input
+	 * @return ContextFreeGrammar object if is valid
+	 */
 	public static ContextFreeGrammar isValidCFG(String input) {
 		ContextFreeGrammar cfg = new ContextFreeGrammar(input);
 		
@@ -178,10 +211,126 @@ public class ContextFreeGrammar {
 		return cfg;
 	}
 	
+	/**
+	 * Validates production
+	 * @param prods
+	 * @param cfg
+	 * @return CFG Object
+	 */
+	private static ContextFreeGrammar validateProductions(String[] prods, ContextFreeGrammar cfg) {
+		String[] prodSplit;
+		String vn = "";
+		HashSet<String> pr = new HashSet<String>();
+		boolean isSDefined = false;
+		for(String prod : prods) {
+			prodSplit = prod.split("->");
+			if(prodSplit.length != 2) {
+				return null;
+			}
+			vn = prodSplit[0];
+			if(vn.length() == 0) {
+				return null;
+			}
+			pr = cfg.productions.get(vn);
+			if(pr == null) {
+				pr = new HashSet<String>();
+			}
+			vn = vn.replaceAll("\\s+", "");
+			if(vn.length() > 1) {
+				if (!vn.substring(1).matches("^[0-9\\s+]+")) {
+					cfg.vn.clear();
+					return null;
+				}
+			}
+			if (!Character.isUpperCase(vn.charAt(0))) {
+				cfg.vn.clear();
+				return null;
+			}
+			cfg.vn.add(vn);
+			if (!isSDefined) {
+				cfg.s = vn;
+				isSDefined = true;
+				
+			}
+			if (!validateProduction(vn, prod, pr, cfg)) {
+				cfg.vn.clear();
+				return null;
+			}
+		}
+		for(String c : cfg.vn) { // Vn com produções vazias
+			if(cfg.getGrammarProductions(c).isEmpty()) {
+				cfg.vn.clear();
+				return null;
+			}
+		}
+
+		return cfg;
+	}
+
+	/**
+	 * method that validates if productions are valid
+	 * @param vn
+	 * @param productions
+	 * @param prodList
+	 * @param cfg
+	 * @return true if valid
+	 */
+	private static boolean validateProduction(String vn, String productions,
+			HashSet<String> prodList, ContextFreeGrammar cfg) {
+		String prod = productions.substring(productions.indexOf("->")+2);
+		if (prod.replaceAll("\\s+", "").length() < 1) {
+			cfg.vn.clear();
+			return false;
+		}
+		String[] prods = prod.split("\\|");
+		for(String eachProd : prods) {
+			if (eachProd.replaceAll("\\s+", "").length() < 1) { // |prod| = 0
+				cfg.vn.clear();
+				return false;
+			}
+			String[] symbols = eachProd.split("[\\s\\r]+"); // + E T
+			for (String symb : symbols) {
+				if(symb.isEmpty()) {
+					continue;
+				}
+				if (Character.isUpperCase(symb.charAt(0))) {
+					for (int i = 1; i < symb.length(); i++) {
+						if (!Character.isDigit(symb.charAt(i))) { // E1E
+							cfg.vn.clear();
+							return false;
+						}
+					}
+					cfg.vn.add(symb);
+				} else {
+					for (int i = 1; i < symb.length(); i++) {
+						if (Character.isUpperCase(symb.charAt(i))) {
+							cfg.vn.clear();
+							return false;
+						}
+					}
+					cfg.vt.add(symb);
+				}
+			}
+			prodList.add(eachProd);
+			cfg.productions.put(vn, prodList);
+		}
+		return true;
+	}
+
+	
+	/**
+	 * Return First NTs
+	 * @return firstNTs
+	 */
 	public HashMap<String, HashSet<String>> getFirstNT() {
 		return firstNT;
 	}
 	
+	/**
+	 * Return FirstNT of specified nt
+	 * @param nt
+	 * @return firstNT of nt
+	 */
 	public Set<String> getFirstNT(String nt) {
 		if (!isVnVt(nt)) { // if a symbol does not belong to vn vt
 			return null;
@@ -189,6 +338,11 @@ public class ContextFreeGrammar {
 		return getFirstNT().get(nt);
 	}
 	
+	/**
+	 * If a symbol belongs to vn vt
+	 * @param str
+	 * @return true if belongs
+	 */
 	private boolean isVnVt(String str) {
 		boolean onlySpaces = true;
 		for (String s : tokenize(str)) {
@@ -207,6 +361,9 @@ public class ContextFreeGrammar {
 		return true;
 	}
 	
+	/**
+	 * Calculate FirstNT
+	 */
 	public void calculateFirstNT(){
 		firstNT = new HashMap<>();
 		Set<String> set;
@@ -268,7 +425,11 @@ public class ContextFreeGrammar {
 			}
 		}
 		return firstNTSet;
-}
+	}
+	
+	/**
+	 * Calculate First
+	 */
 	public void calculateFirst(){
 		for (String a : vt) {
 			a = a.replaceAll("\\s","");
@@ -334,6 +495,9 @@ public class ContextFreeGrammar {
 		}
 	}
 	
+	/**
+	 * Calculate Follow
+	 */
 	public void calculateFollow(){
 		if(first.size() == 0) {
 			calculateFirst();
@@ -394,6 +558,12 @@ public class ContextFreeGrammar {
 		}
 	}
 	
+	/**
+	 * Checks if there is an & in the first set
+	 * @param tokens
+	 * @param i
+	 * @return true if there 
+	 */
 	public boolean checkEpsilonFirst(ArrayList<String> tokens, int i) {
 		for (int j = i; j < tokens.size(); j++) {
 			String c = tokens.get(j);
@@ -416,13 +586,28 @@ public class ContextFreeGrammar {
 		return groupFirst;
 	}
 	
+	/**
+	 * return first for nt "a"
+	 * @param a
+	 * @return first of a
+	 */
 	public HashSet<String> getFirst(String a){
 		return first.get(a);
 	}
+	
+	/**
+	 * return follow for nt "a"
+	 * @param a
+	 * @return follow of a
+	 */
 	public HashSet<String> getFollow(String a){
 		return follow.get(a);
 	}
 	
+	/**
+	 * returns a new CFG Object without epsilon
+	 * @return CFG Object without epsilon
+	 */
 	public ContextFreeGrammar removeEpsilon() {
 		boolean changed = true;
 		HashSet<String> ne = new HashSet<String>();
@@ -465,22 +650,6 @@ public class ContextFreeGrammar {
 			for(String prod : symbolProductions) {
 				ArrayList<String> tokens = tokenize(prod);
 				if(tokens.get(0).compareTo("&") != 0) {
-					/*for(int i = 0; i < tokens.size(); i++) {
-						String c = tokens.get(i);
-						if(ne.contains(c)) {
-							ArrayList<String> aux = new ArrayList<String>();
-							aux.addAll(tokens);
-							aux.remove(i);
-							String auxString = aux.toString();
-							auxString = auxString.replace("[", " ").replace("]", " ").replace(",", "");
-							newSymbolProductions.add(auxString);
-						}
-						
-					}
-					String auxString = tokens.toString();
-					auxString = auxString.replace("[", " ").replace("]", " ").replace(",", "");
-					newSymbolProductions.add(auxString);
-					*/
 					newSymbolProductions.addAll(getEpsilonCombination(tokens, ne));
 				}
 			}
@@ -508,6 +677,10 @@ public class ContextFreeGrammar {
 		return comb;
 	}
 	
+	/**
+	 * retuns CFG Object without simple productions
+	 * @return CFG Object without simple productions
+	 */
 	public ContextFreeGrammar removeSimpleProductions() {
 		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
 		HashMap<String, HashSet<String>> nt = new HashMap<String, HashSet<String>>();
@@ -558,6 +731,10 @@ public class ContextFreeGrammar {
 		return simpleFree;
 	}
 	
+	/** 
+	 * Returns CFG Object without simple productions
+	 * @return CFG Object without simple productions
+	 */
 	public ContextFreeGrammar removeInfertile() {
 		HashSet<String> nf = new HashSet<String>();
 		HashSet<String> unfertile = new HashSet<String>();
@@ -623,6 +800,10 @@ public class ContextFreeGrammar {
 		return noInfertile;
 	}
 	
+	/**
+	 * Return CFG Object without unreachable
+	 * @return CFG Object without unreachable
+	 */
 	public ContextFreeGrammar removeUnreachable() {
 		HashSet<String> newvt = new HashSet<String>();
 		HashSet<String> newvn = new HashSet<String>();
@@ -656,7 +837,11 @@ public class ContextFreeGrammar {
 		return new ContextFreeGrammar(newvn, newvt, newProductions, s);
 	}
 	
-	
+	/**
+	 * Separate string into an array list
+	 * @param prod
+	 * @return array list
+	 */
 	private ArrayList<String> tokenize(String prod){
 		String[] br = prod.split(" ");
 		ArrayList<String> list = new ArrayList<String>();
@@ -669,103 +854,16 @@ public class ContextFreeGrammar {
 	}
 	
 
-	private static ContextFreeGrammar validateProductions(String[] prods, ContextFreeGrammar cfg) {
-		String[] prodSplit;
-		String vn = "";
-		HashSet<String> pr = new HashSet<String>();
-		boolean isSDefined = false;
-		for(String prod : prods) {
-			prodSplit = prod.split("->");
-			if(prodSplit.length != 2) {
-				return null;
-			}
-			vn = prodSplit[0];
-			if(vn.length() == 0) {
-				return null;
-			}
-			pr = cfg.productions.get(vn);
-			if(pr == null) {
-				pr = new HashSet<String>();
-			}
-			vn = vn.replaceAll("\\s+", "");
-			if(vn.length() > 1) {
-				if (!vn.substring(1).matches("^[0-9\\s+]+")) {
-					cfg.vn.clear();
-					return null;
-				}
-			}
-			if (!Character.isUpperCase(vn.charAt(0))) {
-				cfg.vn.clear();
-				return null;
-			}
-			cfg.vn.add(vn);
-			if (!isSDefined) {
-				cfg.s = vn;
-				isSDefined = true;
-				
-			}
-			if (!validateProduction(vn, prod, pr, cfg)) {
-				cfg.vn.clear();
-				return null;
-			}
-		}
-		for(String c : cfg.vn) { // Vn com produções vazias
-			if(cfg.getGrammarProductions(c).isEmpty()) {
-				cfg.vn.clear();
-				return null;
-			}
-		}
-
-		return cfg;
-	}
-
-	private static boolean validateProduction(String vn, String productions,
-			HashSet<String> prodList, ContextFreeGrammar cfg) {
-		String prod = productions.substring(productions.indexOf("->")+2);
-		if (prod.replaceAll("\\s+", "").length() < 1) {
-			cfg.vn.clear();
-			return false;
-		}
-		String[] prods = prod.split("\\|");
-		for(String eachProd : prods) {
-			if (eachProd.replaceAll("\\s+", "").length() < 1) { // |prod| = 0
-				cfg.vn.clear();
-				return false;
-			}
-			String[] symbols = eachProd.split("[\\s\\r]+"); // + E T
-			for (String symb : symbols) {
-				if(symb.isEmpty()) {
-					continue;
-				}
-				if (Character.isUpperCase(symb.charAt(0))) {
-					for (int i = 1; i < symb.length(); i++) {
-						if (!Character.isDigit(symb.charAt(i))) { // E1E
-							cfg.vn.clear();
-							return false;
-						}
-					}
-					cfg.vn.add(symb);
-				} else {
-					for (int i = 1; i < symb.length(); i++) {
-						if (Character.isUpperCase(symb.charAt(i))) {
-							cfg.vn.clear();
-							return false;
-						}
-					}
-					cfg.vt.add(symb);
-				}
-			}
-			prodList.add(eachProd);
-			cfg.productions.put(vn, prodList);
-		}
-		return true;
-	}
-
 	private static String[] getProductions(String input) {
 		String[] prod = input.split("[\\r\\n]+");
 		return prod;
 	}
 	
+	/**
+	 * return productions of a nt
+	 * @param vn
+	 * @return productions
+	 */
 	public Set<String> getGrammarProductions(String vn) {
 		Set<String> prod = productions.get(vn);
 		if (prod == null) {
@@ -774,6 +872,11 @@ public class ContextFreeGrammar {
 		return prod;
 	}
 
+	/**
+	 * Add production
+	 * @param nt
+	 * @param prod
+	 */
 	public void addProduction(String nt, String prod) {
 		if (!this.vn.contains(nt)) {
 			this.vn.add(nt);
@@ -784,36 +887,69 @@ public class ContextFreeGrammar {
 		this.productions.put(nt, p);
 	}
 
+	/**
+	 * returns vt
+	 * @return vt
+	 */
 	public HashSet<String> getVt() {
 		return this.vt;
 	}
 	
+	/**
+	 * returns vn
+	 * @return vn
+	 */
 	public HashSet<String> getVn() {
 		return this.vn;
 	}
 	
+	/**
+	 * returns first
+	 * @return first
+	 */
 	public HashMap<String, HashSet<String>> getFirst() {
 		return first;
 	}
 	
+	/**
+	 * returns initial symbol
+	 * @return initial symbol
+	 */
 	public String getInitialSymbol() {
 		return this.s;
 	}
 	
+	/**
+	 * set Id
+	 * @param id
+	 */
 	public void setId(String id) {
 		this.id = id;
 	}
 	
+	/**
+	 * returns id
+	 * @return id
+	 */
 	public String getId() {
 		return this.id;
 	}
 
+	/**
+	 * remove production
+	 * @param nonterminal to be removed
+	 * @param prod with remotion
+	 */
 	public void removeProduction(String nonterminal, String prod) {
 		HashSet<String> pSet = this.productions.get(nonterminal);
 		pSet.remove(prod);
 		this.productions.put(nonterminal, pSet);
 	}
 	
+	/**
+	 * return productions
+	 * @return productions
+	 */
 	public HashMap<String, HashSet<String>> getProductions(){
 		return productions;
 	}
