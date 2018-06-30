@@ -212,7 +212,7 @@ public class ContextFreeGrammar {
 	}
 	
 	/**
-	 * Validates production
+	 * Validates vn e calls for prod validation
 	 * @param prods
 	 * @param cfg
 	 * @return CFG Object
@@ -331,11 +331,11 @@ public class ContextFreeGrammar {
 	 * @param nt
 	 * @return firstNT of nt
 	 */
-	public Set<String> getFirstNT(String nt) {
-		if (!isVnVt(nt)) { // if a symbol does not belong to vn vt
+	public Set<String> getFirstNT(String a) {
+		if (!isVnVt(a)) { // if a symbol does not belong to vn vt
 			return null;
 		}
-		return getFirstNT().get(nt);
+		return getFirstNT().get(a);
 	}
 	
 	/**
@@ -592,6 +592,9 @@ public class ContextFreeGrammar {
 	 * @return first of a
 	 */
 	public HashSet<String> getFirst(String a){
+		if (!isVnVt(a)) { // if a symbol does not belong to vn vt
+			return null;
+		}
 		return first.get(a);
 	}
 	
@@ -601,6 +604,9 @@ public class ContextFreeGrammar {
 	 * @return follow of a
 	 */
 	public HashSet<String> getFollow(String a){
+		if (!isVnVt(a)) { // if a symbol does not belong to vn vt
+			return null;
+		}
 		return follow.get(a);
 	}
 	
@@ -678,7 +684,7 @@ public class ContextFreeGrammar {
 	}
 	
 	/**
-	 * retuns CFG Object without simple productions
+	 * returns CFG Object without simple productions
 	 * @return CFG Object without simple productions
 	 */
 	public ContextFreeGrammar removeSimpleProductions() {
