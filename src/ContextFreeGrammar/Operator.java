@@ -110,10 +110,10 @@ public class Operator {
 		
 
 		if(newOperator.isFactored()) {
-			System.out.println(cfg.getId() + " is factored in " + steps + "steps.");
+			System.out.println(cfg.getId() + " is factored in " + i + " steps.");
 		}
 		else {
-			System.out.println(cfg.getId() + " is not factored in " + steps + "steps.");
+			System.out.println(cfg.getId() + " is not factored in " + i + " steps.");
 
 		}
 		
@@ -414,7 +414,7 @@ public class Operator {
 		
 		// Indirect Left Recursion
 		String ai, aj;
-		String firstSymbolAiProd, firstSymbolAjProd;
+		String firstSymbolAiProd;
 		for (int i = 0; i < numberedVn.size(); i++) { // Ai
 			ai = numberedVn.get(i);
 			ArrayList<String> productionsAi = newOp.getProdList(newG.getGrammarProductions(ai));

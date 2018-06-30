@@ -174,6 +174,7 @@ public class ContextFreeGrammar {
 		}
 		cfg.calculateFirst();
 		cfg.calculateFirstNT();
+		cfg.calculateFollow();
 		return cfg;
 	}
 	
@@ -456,6 +457,7 @@ public class ContextFreeGrammar {
 				}
 			}
 		}
+		System.out.println("Ne: " + ne.toString());
 		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
 		for (String symbol : vn) {
 			HashSet<String> newSymbolProductions = new HashSet<String>();
@@ -543,6 +545,15 @@ public class ContextFreeGrammar {
 			}
 		}
 		
+		System.out.println("Na ---------------------");
+		for (HashMap.Entry<String, HashSet<String>> entry : nt.entrySet()) {
+		    String key = entry.getKey();
+		    Object value = entry.getValue();
+			System.out.println("    * " + key + ": " + value);
+		}
+		System.out.println("------------------------");
+
+		
 		ContextFreeGrammar simpleFree = new ContextFreeGrammar(vn, vt, newProductions, s);
 		return simpleFree;
 	}
@@ -588,6 +599,7 @@ public class ContextFreeGrammar {
 				}
 			}
 		}
+		System.out.println("Nf: " + nf.toString());
 		HashMap<String, HashSet<String>> newProductions = new HashMap<String, HashSet<String>>();
 		for (String symbol : nf) {
 			HashSet<String> symbolProductions = new HashSet<String>();

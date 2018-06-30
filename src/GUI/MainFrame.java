@@ -110,7 +110,7 @@ public class MainFrame extends JFrame {
 
 		});
 
-		jtextArea1 = new JTextArea(100, 100);
+		jtextArea1 = new JTextArea(6, 60);
 		JScrollPane scrollPane = new JScrollPane(jtextArea1); 
 		jtextArea1.setEditable(false);
 		PrintStream outStream = new PrintStream( new TextAreaOutputStream(jtextArea1));
@@ -185,7 +185,7 @@ public class MainFrame extends JFrame {
 						.addGap(40))
 					.addGroup(gl_mainPanel.createSequentialGroup()
 							.addGap(7)
-							.addComponent(jtextArea1, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
+							.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE)
 							.addGap(7))
 			);
 		gl_mainPanel.setVerticalGroup(
@@ -212,7 +212,7 @@ public class MainFrame extends JFrame {
 					.addContainerGap()
 					.addGap(7)
 					.addGroup(gl_mainPanel.createParallelGroup(Alignment.LEADING)
-							.addComponent(jtextArea1, 100, 100, GroupLayout.PREFERRED_SIZE)
+							.addComponent(scrollPane, 100, 100, GroupLayout.PREFERRED_SIZE)
 							)
 					.addContainerGap()
 

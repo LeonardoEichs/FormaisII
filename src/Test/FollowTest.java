@@ -58,7 +58,7 @@ public class FollowTest {
 	}
 
 	@Test
-	public void firstNTG0Test() {
+	public void followG0Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[0]);
 		op.calculateFollow();
 
@@ -82,7 +82,7 @@ public class FollowTest {
 		}
 	
 	@Test
-	public void firstNTG1Test() {
+	public void followG1Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[1]);
 		op.calculateFollow();
 
@@ -99,7 +99,7 @@ public class FollowTest {
 		expectedFollow.clear();
 		
 		expectedFollow.add("b");
-		expectedFollow.add("$");
+		expectedFollow.add("c");
 		assertTrue(followA.equals(expectedFollow));
 		expectedFollow.clear();
 		
@@ -124,7 +124,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG2Test() {
+	public void followG2Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[2]);
 		op.calculateFollow();
 
@@ -140,7 +140,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG3Test() {
+	public void followG3Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[3]);
 		op.calculateFollow();
 
@@ -163,7 +163,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG4Test() {
+	public void followG4Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[4]);
 		op.calculateFollow();
 
@@ -177,7 +177,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG5Test() {
+	public void followG5Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[5]);
 		op.calculateFollow();
 		
@@ -210,7 +210,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG6Test() {
+	public void followG6Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[6]);
 		op.calculateFollow();
 
@@ -242,7 +242,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG7Test() {
+	public void followG7Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[7]);
 		op.calculateFollow();
 
@@ -270,7 +270,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG9Test() {
+	public void followG9Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[8]);
 		op.calculateFollow();
 
@@ -292,7 +292,7 @@ public class FollowTest {
 	}
 	
 	@Test
-	public void firstNTG10Test() {
+	public void followG10Test() {
 		ContextFreeGrammar op = ContextFreeGrammar.isValidCFG(grammar[9]);
 		op.calculateFollow();
 
