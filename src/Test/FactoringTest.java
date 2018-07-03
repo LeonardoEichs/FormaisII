@@ -144,5 +144,46 @@ public class FactoringTest {
 				"C -> & | c C\n" + 
 				"", results.get(results.size()-1).getDefinition());
 	}
+	
+	@Test 
+	public void testFactorG3() {
+		ContextFreeGrammar g = ContextFreeGrammar.isValidCFG(
+				"S -> a S | a B | d S \n" + 
+				"B -> b B | b");
+		g.setId("G1");
+		Operator op = new Operator(g);
+		ArrayList<ContextFreeGrammar> results = new ArrayList<>();
+		assertFalse(op.isFactored()); // not factored
+		results = op.factorGrammar(6);
+		op = new Operator(results.get(results.size()-1));
+		assertTrue(op.isFactored()); // must be factored
+		String received = results.get(results.size()-1).getDefinition();
+		assertEquals("S -> a S1 | d S\n" + 
+				"B -> b B1\n" + 
+				"S1 -> S | B\n" + 
+				"B1 -> & | B\n" +
+				"", received);
+	}
+	
+	@Test 
+	public void testFactorG4() {
+		ContextFreeGrammar g = ContextFreeGrammar.isValidCFG(
+				"S -> a S | a B | d S \n" + 
+				"B -> b B | b");
+		g.setId("G1");
+		Operator op = new Operator(g);
+		ArrayList<ContextFreeGrammar> results = new ArrayList<>();
+		assertFalse(op.isFactored()); // not factored
+		results = op.factorGrammar(6);
+		op = new Operator(results.get(results.size()-1));
+		assertTrue(op.isFactored()); // must be factored
+		String received = results.get(results.size()-1).getDefinition();
+		assertEquals("S -> a S1 | d S\n" + 
+				"B -> b B1\n" + 
+				"S1 -> S | B\n" + 
+				"B1 -> & | B\n" +
+				"", received);
+	}
+
 
 }

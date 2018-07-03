@@ -249,13 +249,13 @@ public class ContextFreeGrammar {
 			cfg.vn.add(vn);
 			if (!isSDefined) {
 				cfg.s = vn;
-				isSDefined = true;
-				
+				isSDefined = true;	
 			}
 			if (!validateProduction(vn, prod, pr, cfg)) {
 				cfg.vn.clear();
 				return null;
 			}
+
 		}
 		for(String c : cfg.vn) { // Vn com produções vazias
 			if(cfg.getGrammarProductions(c).isEmpty()) {
@@ -263,7 +263,6 @@ public class ContextFreeGrammar {
 				return null;
 			}
 		}
-
 		return cfg;
 	}
 
@@ -958,6 +957,9 @@ public class ContextFreeGrammar {
 	 */
 	public HashMap<String, HashSet<String>> getProductions(){
 		return productions;
+	}
+	public String getGrammar() {
+		return grammar;
 	}
 
     @Override

@@ -106,16 +106,12 @@ public class LeftRecursionTest {
 				"C -> c C | & | B\n");
 		Operator op = new Operator(g);
 		assertTrue(op.hasLeftRecursion());
-		String def = g.getDefinition();
 		
-		System.out.println(op.eliminateLeftRecursion().getDefinition());
 		assertEquals("S -> C a B b | C d | b\n" + 
 				"B -> C a B | &\n" + 
 				"C -> c C C1 | C1\n" + 
 				"C1 -> & | a B C1\n" + 
 				"", op.eliminateLeftRecursion().getDefinition());
-		
-		assertEquals(def, g.getDefinition());
 	}
 
 }

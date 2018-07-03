@@ -115,6 +115,7 @@ public class Operator {
 
 		ContextFreeGrammar previous = new ContextFreeGrammar(cfg);
 		Operator newOperator = new Operator(previous);
+
 		
 		int i = 1;
 		while(i <= steps) {
@@ -165,9 +166,7 @@ public class Operator {
 				nProd1 = tokenize(prods.get(i));
 				for(int j = i+1; j < prods.size(); j++) {
 					nProd2 = tokenize(prods.get(j));
-					if(nProd1.get(0).equals(nProd2.get(0)) && 
-							Character.isLowerCase(nProd1.get(0).charAt(0)) && 
-							Character.isLowerCase(nProd2.get(0).charAt(0))) { // Direct Factoring
+					if(nProd1.get(0).equals(nProd2.get(0)))	{ // Direct Factoring
 						repeat = false;
 						production.add(nProd1.get(0) + " " + newNT);
 						if(newProductions.containsKey(nonterminal)) {
@@ -232,7 +231,6 @@ public class Operator {
 			}
 
 		}
-		
 		// Indirect Factoring
 		for(String nonterminal : newG.getVn()) {
 			//repeat = true;
@@ -242,56 +240,7 @@ public class Operator {
 			String newNT = createNewVN(nonterminal);
 			for(int i = 0; i < prods.size(); i++) {
 				nProd1 = tokenize(prods.get(i));
-				for(int j = i+1; j < prods.size(); j++) {
-					nProd2 = tokenize(prods.get(j));
-					if(nProd1.get(0).equals(nProd2.get(0)) && 
-							Character.isUpperCase(nProd1.get(0).charAt(0)) && 
-							Character.isUpperCase(nProd2.get(0).charAt(0))) {
-						repeat = false;
-						newProductions.remove(nonterminal);
-						production.add(nProd1.get(0) + " " + newNT);
-						if(newProductions.containsKey(nonterminal)) {
-							production.addAll(newProductions.get(nonterminal));
-						}
-						newProductions.put(nonterminal, production);
-						production = new HashSet<String>();
-						if(newProductions.containsKey(newNT)) {
-							production.addAll(newProductions.get(newNT));
-						}
-						if(nProd1.size() > 1) {
-							production.add(prods.get(i).substring(2));
-						}
-						else {
-							production.add("&");
-						}
-						if(nProd2.size() > 1) {
-							production.add(prods.get(j).substring(2));
-						}
-						else {
-							production.add("&");
-						}
-						newProductions.put(newNT, production);
-						production = new HashSet<String>();
-					}
-				}
-				if (!repeat) {
-					// Did a step in the factorization
-					// Add to the set the rest of the productions
-					for(int k = i+1; k<prods.size(); k++) {
-						ArrayList<String> nProd = tokenize(prods.get(k));
-						if(!nProd1.get(0).equals(nProd.get(0))) {
-							production = new HashSet<String>();
-							if(newProductions.containsKey(nonterminal)) {
-								production.addAll(newProductions.get(nonterminal));
-							}
-							production.add(prods.get(k));
-							newProductions.put(nonterminal, production);
-							production = new HashSet<String>();
-						}
-					}
-					stepDone = true;
-					break;
-				}
+				
 				// Same symbol not found
 				// Add to the set
 				production = new HashSet<String>();
@@ -306,7 +255,7 @@ public class Operator {
 							production.add(prods.get(i).substring(nProd1.get(0).length()+1));
 						}
 						else {
-							production.add(prodi + prods.get(i).replaceFirst("^\\s+", "").substring(nProd1.get(0).length()+1));
+							production.add(prodi.replaceAll("\\s+$", "") + " " + prods.get(i).replaceFirst("^\\s+", "").substring(nProd1.get(0).length()+1));
 						}
 					}
 					newProductions.put(nonterminal, production);
@@ -452,7 +401,7 @@ public class Operator {
 		Operator newOp = new Operator(newG);
 		
 		HashSet<String> productionSet = new HashSet<String>();
-		HashMap<String, HashSet<String>> newProd = new HashMap<String, HashSet<String>>();
+		HashMap<String, HashSet<String>> newProd = newG.getProductions();
 		
 		ArrayList<String> numberedVn = new ArrayList<>();
 		
@@ -469,25 +418,20 @@ public class Operator {
 		String firstSymbolAiProd;
 		for (int i = 0; i < numberedVn.size(); i++) { // Ai
 			ai = numberedVn.get(i);
-			ArrayList<String> productionsAi = newOp.getProdList(newG.getGrammarProductions(ai));
+			ArrayList<String> productionsAi = newOp.getProdList(newProd.get(ai));
 			for (int j = 0; j <= i-1; j++) { // For every Aj
+				productionsAi = newOp.getProdList(newProd.get(ai));
 				aj = numberedVn.get(j);
 				for (String aiProd : productionsAi) { // Ai -> aiProd | aiProd | aiProd
 					productionSet = new HashSet<String>();
-					firstSymbolAiProd = newOp.tokenize(aiProd).get(0);
-					if(newOp.cfg.getVt().contains(firstSymbolAiProd)) { // terminal skip
-						if(newProd.containsKey(ai)) {
-							productionSet.addAll(newProd.get(ai));
-						}
-						productionSet.add(aiProd);
-						newProd.put(ai, productionSet);
-						continue;
-					}
+					firstSymbolAiProd = tokenize(aiProd).get(0);
 					if (firstSymbolAiProd.equals(aj)) { // firstSymbolAiProd == Aj
+						newProd.put(ai, removeFromSet(newProd.get(ai),aiProd));
+						productionSet.addAll(newProd.get(ai));
 						System.out.println("* Indirect Recursion ------ Ai: " + ai.trim() + " | Aj: " + aj.trim() + " | Prod: " + aiProd.trim());
-						for(String prodJ : newG.getGrammarProductions(aj)) {
+						for(String prodJ : newProd.get(aj)) {
 							if(!prodJ.trim().equals("&")) {
-								productionSet.add(prodJ.trim() + aiProd.substring(aj.length()+1));
+								productionSet.add(prodJ.trim() + " " + aiProd.substring(aj.length()+1).trim() + " ");
 							}
 							else {
 								if(aiProd.trim().substring(aj.length()).length() >= 1) {
@@ -495,32 +439,11 @@ public class Operator {
 								}
 							}
 						}
-						if(newProd.containsKey(ai)) {
-							productionSet.addAll(newProd.get(ai));
-						}
 						newProd.put(ai, productionSet);
 					}
 				}
 			}
-			if(!newProd.containsKey(ai)) {
-				productionSet = new HashSet<String>();
-				productionSet.addAll(newG.getGrammarProductions(ai));
-				newProd.put(numberedVn.get(i), productionSet);
-			}
-			else {
-				for(int k = i+1; k < numberedVn.size(); k++) {
-					String symbol = numberedVn.get(k);
-					productionSet = new HashSet<String>();
-					productionSet.addAll(newProd.get(ai));
-					for(String aiProd : productionsAi) {
-						firstSymbolAiProd = tokenize(aiProd).get(0);
-						if(firstSymbolAiProd.equals(symbol)) {
-							productionSet.add(aiProd);
-						}
-						newProd.put(numberedVn.get(i), productionSet);
-					}
-				}	
-			}			
+			newProd = directRecursion(newProd, ai);
 		}
 
 		ContextFreeGrammar cfgIR = ContextFreeGrammar.isValidCFG(mapToInput(newProd, newG.getInitialSymbol()));
@@ -567,6 +490,51 @@ public class Operator {
 		ContextFreeGrammar cfgDR = ContextFreeGrammar.isValidCFG(mapToInput(newProd, cfgIR.getInitialSymbol()));
 		
 		return cfgDR;
+	}
+
+	private HashSet<String> removeFromSet(HashSet<String> newProdAi, String aiProd) {
+		HashSet<String> productionSet = new HashSet<String>();
+		for(String prod : newProdAi) {
+			if(!prod.equals(aiProd)) {
+				productionSet.add(prod);
+			}
+		}
+		return productionSet;
+		
+	}
+
+	private HashMap<String, HashSet<String>> directRecursion(HashMap<String, HashSet<String>> newProd, String ai) {
+			String newNT = createNewVN(ai);
+			Set<String> prod = newProd.get(ai);
+			ArrayList<String> prods = getProdList(prod);
+			for(int i = 0; i < prods.size(); i++) {
+				ArrayList<String> nProd1 = tokenize(prods.get(i));
+				if(nProd1.get(0).equals(ai)){
+					System.out.println("* Direct Recursion ------ Symbol: " + ai.trim() + " | Prod: " + prods.get(i).trim());
+					HashSet<String> productionSet = new HashSet<String>();
+					for(String p : prods) {
+						if(!tokenize(p).get(0).equals(ai)) {
+							if(tokenize(p).get(0).equals("&")) {
+								productionSet.add(newNT);
+							}
+							else {
+								productionSet.add(p.replaceAll("\\s*$", "") + " " + newNT);
+							}
+						}
+						newProd.put(ai, productionSet);
+					}
+					productionSet = new HashSet<String>();
+					for(String p : prods) {
+						if(tokenize(p).get(0).equals(ai)) {
+							productionSet.add(p.substring(tokenize(p).get(0).length()+1).replaceAll("\\s*$", "") + " " + newNT);
+						}
+						productionSet.add("&");
+						newProd.put(newNT, productionSet);
+					}
+
+				}
+			}
+		return newProd;
 	}
 
 }
